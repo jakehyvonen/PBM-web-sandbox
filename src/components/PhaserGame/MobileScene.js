@@ -2,7 +2,7 @@ import Button from 'phaser3-rex-plugins/plugins/input/button/Button.js';
 import Phaser from 'phaser'
 import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js';
 import openSocket from 'socket.io-client';
-import io from 'socket.io-client';
+import _ from 'lodash'; // Import lodash for throttling
 
 var socket = null;
 
@@ -13,6 +13,8 @@ export default class MobileScene extends Phaser.Scene {
     this.deviceOrientation = { alpha: 0, beta: 0, gamma: 0 };
     this.orientationBroadcasting = false;
     this.orientationBroadcastInterval = null;
+    this.handleDeviceOrientation = this.handleDeviceOrientation.bind(this);
+
   } 
 
   //Phaser.Scene method
@@ -121,24 +123,9 @@ export default class MobileScene extends Phaser.Scene {
       }
     })
 
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      DeviceOrientationEvent.requestPermission()
-          .then(permissionState => {
-              if (permissionState === 'granted') {
-                  window.addEventListener('deviceorientation', this.handleOrientation, true);
-                  console.log('permission granted');
-                  socket.emit('keyboard_input', 'permission granted');
+    window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
 
-              }
-          })
-          .catch(console.error);
-    } else {
-      console.log('orientation permission not granted');
-      socket.emit('keyboard_input', 'permission not granted');
-        // handle regular non iOS 13+ devices
-    }    
-
-    var orientationButtonSprite = this.add.sprite(this.gameWidth*19/20, this.gameHeight*7/8, 'silverT');
+    var orientationButtonSprite = this.add.sprite(this.gameWidth*9/10, this.gameHeight*5/6, 'silverT');
     orientationButtonSprite.scale = 3;
   
     this.orientationButton = new Button(orientationButtonSprite);
@@ -168,7 +155,7 @@ export default class MobileScene extends Phaser.Scene {
     button2sprite.scale = 3;
     var button3sprite = this.add.sprite(this.gameWidth/2.3, this.gameHeight/6, 'blue3');
     button3sprite.scale = 3;
-    var centerButtonsprite = this.add.sprite(this.gameWidth*19/20, this.gameHeight*3/4, 'silverC');
+    var centerButtonsprite = this.add.sprite(this.gameWidth*9/10, this.gameHeight*3/4, 'silverC');
     centerButtonsprite.scale = 3;
     var recordButtonSprite = this.add.sprite(this.gameWidth*5/6, this.gameHeight/6, 'redr');
     recordButtonSprite.scale = 5;
@@ -301,23 +288,26 @@ export default class MobileScene extends Phaser.Scene {
   }
 
 
-  handleDeviceOrientation = (event) => {
-    console.log('event.alpha: ', event.alpha);
+  handleDeviceOrientation = _.throttle((event) => {
+    //console.log('event.alpha: ', event.alpha);
+    const { alpha, beta, gamma } = event;
+
+    const roundedAlpha = parseFloat(alpha.toFixed(2));
+    const roundedBeta = parseFloat(beta.toFixed(2));
+    const roundedGamma = parseFloat(gamma.toFixed(2));
     this.deviceOrientation = {
-      alpha: event.alpha,
-      beta: event.beta,
-      gamma: event.gamma
+      alpha: roundedAlpha,
+      beta: roundedBeta,
+      gamma: roundedGamma
     };
-  }
+  }, 100);
 
   broadcastDeviceOrientation() {
-    console.log('brodacastething')
     if (this.orientationBroadcasting) {
       var data = this.deviceOrientation.alpha + '|';
       data += this.deviceOrientation.beta + '|';
       data += this.deviceOrientation.gamma;
       socket.emit('device_orientation', data);
-      console.log('werking')
     }
   }
 

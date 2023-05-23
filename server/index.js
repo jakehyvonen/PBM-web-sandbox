@@ -27,11 +27,10 @@ app.use((req, res, next) => {
 
 io.on('connection',(socket)=>{
   console.log('client connected: ',socket.id)
-  socket.join('clock-room')
   
-  socket.on('deviceOrientation', (data) => {
-    console.log('Received device orientation:', data);
-  });
+  // socket.on('deviceOrientation', (data) => {
+  //   console.log('Received device orientation:', data);
+  // });
 
   socket.on('disconnect',(reason)=>{
     console.log(reason)
