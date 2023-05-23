@@ -45,21 +45,8 @@ export default class MobileScene extends Phaser.Scene {
   }
 
   init() {
-    //socket = new openSocket('ws://192.168.1.157:8081');
-    //socket = openSocket('http://192.168.1.195:8081');
-    // socket = io.connect('https://192.168.1.195:8081',{
-    //   transports: ['websocket'],
-    //   secure: true,
-    // })
+   
     socket = openSocket(process.env.REACT_APP_NGROK_URL)
-//    window.addEventListener('deviceorientation', this.handleDeviceOrientation.bind(this), true);
-
-    // if (window.DeviceOrientationEvent) {
-    //   window.addEventListener('deviceorientation', this.handleOrientation, true);
-    // } else {
-    //   console.log("Device Orientation API not supported.");
-    //   socket.emit('keyboard_data', 'no deviceorientationnnn');
-    // }
 
     this.gameWidth = this.sys.game.config.width;
     this.gameHeight = this.sys.game.config.height;    
@@ -68,15 +55,6 @@ export default class MobileScene extends Phaser.Scene {
       x: this.gameWidth/6,
       y: this.gameHeight*5/6,
     }
-    this.joystickBConfig = {
-      x: this.gameWidth*5/6,
-      y: this.gameHeight*5/6,
-    }    
-    this.joystickCConfig = {
-      x: this.gameWidth*5/6,
-      y: this.gameHeight*3/6,
-      dir:'left&right',
-    }    
     this.isDispensing = false;
     this.isRecording = false;
     this.isReplaying = false;
@@ -121,9 +99,7 @@ export default class MobileScene extends Phaser.Scene {
     this.input.addPointer(1);
 
     this.joystickA= this.createVirtualJoystick(this.joystickAConfig);
-    this.joystickB = this.createVirtualJoystick(this.joystickBConfig);
-    this.joystickC = this.createVirtualJoystick(this.joystickCConfig);
-    this.joysticks = [this.joystickA,this.joystickB,this.joystickC];
+    this.joysticks = [this.joystickA];
 
     var dispenseSprite = this.add.sprite(this.gameWidth/6, this.gameHeight/2, 'silverdown');
     dispenseSprite.scale = 5;
@@ -144,10 +120,6 @@ export default class MobileScene extends Phaser.Scene {
         socket.emit('action_keydown','SPACE');
       }
     })
-    // if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-    //   DeviceMotionEvent.requestPermission()
-    // }
-
 
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
       DeviceOrientationEvent.requestPermission()
@@ -258,14 +230,12 @@ export default class MobileScene extends Phaser.Scene {
         this.isRecording = false;
         //hardcode mapped to End_Run
         socket.emit('action_keydown','N');
-
       }
       else{
         recordButtonSprite.setTexture('redrpush')
         this.isRecording = true;
         //hardcode mapped to Begin_Run
         socket.emit('action_keydown','B');
-
       }
     })
 
@@ -274,15 +244,15 @@ export default class MobileScene extends Phaser.Scene {
     {
       console.log('clicky3');      
       //hardcode mapped to Replay_Motif
-      socket.emit('action_keydown','R');
-      
+      socket.emit('action_keydown','R');      
     })
 
     this.setCursorDebugInfo();
     this.updateJoystickState();
-    this.broadcastInterval = setInterval(() => this.broadcastPositions(), 20);
+    this.broadcastInterval = setInterval(() => this.broadcastSyringeJoystick(), 20);
 
   }
+
 
 
   normalizedXAndYFromForce(){
@@ -306,20 +276,19 @@ export default class MobileScene extends Phaser.Scene {
     });
   }
 
-  broadcastPositions() {
-    var positions = [this.joystickA.normalizedX, this.joystickA.normalizedY,
-      this.joystickB.normalizedX, this.joystickB.normalizedY, this.joystickC.normalizedX]
-    
+
+  broadcastSyringeJoystick() {
+    var positions = [this.joystickA.normalizedX, this.joystickA.normalizedY]
+
     if(positions.some(el => el>0 || el<0)) {
       var msg = null;
       
       //construct a msg if anything is nonzero
-      //msg = 'joystick_positions[';
-      msg = this.joystickB.normalizedX + '|';
-      msg += this.joystickB.normalizedY + '|';
+      //we only have one joystick for mobile
+      msg = '0|0|';
       msg += this.joystickA.normalizedX + '|';
       msg += this.joystickA.normalizedY + '|';
-      msg += this.joystickC.normalizedX;
+      msg += '0';
       console.log('msg: ' + msg);
 
       socket.emit('joystick_input',msg);

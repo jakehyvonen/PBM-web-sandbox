@@ -108,7 +108,6 @@ function handle_joystick_data(joystick_data)
 
 }
 
-
 function handle_device_orientation_data(device_orientation_data)
 {
     //we receive data almost in the way we need with | delimiters
@@ -154,6 +153,10 @@ function handle_action_keydown(key)
 //convert keyboard keys down to commands
 function handle_keyboard_data(keyboard_data)
 {
+    if (!Array.isArray(keyboard_data)) {
+        console.log('keyboard_data is not an array');
+        return;
+      }
     //the command to send
     var command;
     var command_data = [];
