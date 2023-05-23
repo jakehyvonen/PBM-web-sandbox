@@ -125,7 +125,7 @@ export default class MobileScene extends Phaser.Scene {
 
     window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
 
-    var orientationButtonSprite = this.add.sprite(this.gameWidth*9/10, this.gameHeight*5/6, 'silverT');
+    var orientationButtonSprite = this.add.sprite(this.gameWidth*3/4, this.gameHeight*5/6, 'silverT');
     orientationButtonSprite.scale = 3;
   
     this.orientationButton = new Button(orientationButtonSprite);
@@ -142,7 +142,7 @@ export default class MobileScene extends Phaser.Scene {
       else{
         orientationButtonSprite.setTexture('silverTpush')
         this.orientationBroadcasting = true;
-        this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 100);
+        this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 200);
 
       }
     })  
@@ -288,7 +288,7 @@ export default class MobileScene extends Phaser.Scene {
   }
 
 
-  handleDeviceOrientation = _.throttle((event) => {
+  handleDeviceOrientation = (event) => {
     //console.log('event.alpha: ', event.alpha);
     const { alpha, beta, gamma } = event;
 
@@ -300,7 +300,7 @@ export default class MobileScene extends Phaser.Scene {
       beta: roundedBeta,
       gamma: roundedGamma
     };
-  }, 100);
+  };
 
   broadcastDeviceOrientation() {
     if (this.orientationBroadcasting) {
