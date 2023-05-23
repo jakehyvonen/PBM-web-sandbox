@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
 import "./styles.css";
 import {io} from 'socket.io-client'
 import _ from 'lodash'; // Import lodash for throttling
+import PhaserGame from './components/PhaserGame/PhaserGame';
 
 const App = () => {
   const [time, setTime] = useState('fetching')
@@ -10,7 +10,7 @@ const App = () => {
   const socket = useRef(null);
 
   useEffect(()=>{
-    socket.current = io('https://5863-154-6-81-27.ngrok-free.app')
+    socket.current = io(process.env.REACT_APP_NGROK_URL)
     socket.current.on('connect', ()=>console.log(socket.current.id))
     socket.current.on('connect_error', ()=>{
       setTimeout(()=>socket.current.connect(),5000)
@@ -36,11 +36,7 @@ const App = () => {
 
   return (
     <div className="App">
-      {time}
-      <p>Device orientation: {JSON.stringify(orientation)}</p>
-      <button>
-        words
-      </button>  
+      <PhaserGame></PhaserGame>
     </div>
   );
 }

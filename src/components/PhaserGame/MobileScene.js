@@ -1,0 +1,382 @@
+import Button from 'phaser3-rex-plugins/plugins/input/button/Button.js';
+import Phaser from 'phaser'
+import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js';
+import openSocket from 'socket.io-client';
+import io from 'socket.io-client';
+
+var socket = null;
+
+export default class MobileScene extends Phaser.Scene {
+  constructor() {
+    super('mobile')
+    this.didBroadcastJSNeutral = false;
+    this.deviceOrientation = { alpha: 0, beta: 0, gamma: 0 };
+    this.orientationBroadcasting = false;
+    this.orientationBroadcastInterval = null;
+  } 
+
+  //Phaser.Scene method
+  preload() {
+    this.load.image('base', './assets/base.png');
+    this.load.image('thumb', './assets/thumb.png');
+    this.load.image('blueblank', './assets/blue-!blank.png');
+    this.load.image('blue0', './assets/blue-0.png');
+    this.load.image('blue0push', './assets/blue-0-pushed.png');
+    this.load.image('blue1', './assets/blue-1.png');
+    this.load.image('blue1push', './assets/blue-1-pushed.png');
+    this.load.image('blue2', './assets/blue-2.png');
+    this.load.image('blue2push', './assets/blue-2-pushed.png');
+    this.load.image('blue3', './assets/blue-3.png');
+    this.load.image('greentriangle', './assets/green-!triangle.png');
+    this.load.image('blue3push', './assets/blue-3-pushed.png');
+    this.load.image('silverblank', './assets/silver-!blank.png');
+    this.load.image('silverC', './assets/silver-C.png');
+    this.load.image('silverT', './assets/silver-T.png');
+    this.load.image('silverTpush', './assets/silver-T-pushed.png');
+    this.load.image('silverdown', './assets/silver-!arrowdown.png');
+    this.load.image('silverdownpush', './assets/silver-!arrowdown-pushed.png');
+    this.load.image('redr', './assets/red-R.png');
+    this.load.image('redrpush', './assets/red-R-pushed.png');
+    this.load.image('yellowblank', './assets/yellow-!blank.png');
+    this.load.image('yellowblankpush', './assets/yellow-!blank-pushed.png');
+    this.load.plugin('rex-virtual-joystick-plugin"', VirtualJoystickPlugin, true);   
+		// sprites, note: see free sprite atlas creation tool here https://www.leshylabs.com/apps/sstool/
+  
+  }
+
+  init() {
+    //socket = new openSocket('ws://192.168.1.157:8081');
+    //socket = openSocket('http://192.168.1.195:8081');
+    // socket = io.connect('https://192.168.1.195:8081',{
+    //   transports: ['websocket'],
+    //   secure: true,
+    // })
+    socket = openSocket(process.env.REACT_APP_NGROK_URL)
+//    window.addEventListener('deviceorientation', this.handleDeviceOrientation.bind(this), true);
+
+    // if (window.DeviceOrientationEvent) {
+    //   window.addEventListener('deviceorientation', this.handleOrientation, true);
+    // } else {
+    //   console.log("Device Orientation API not supported.");
+    //   socket.emit('keyboard_data', 'no deviceorientationnnn');
+    // }
+
+    this.gameWidth = this.sys.game.config.width;
+    this.gameHeight = this.sys.game.config.height;    
+
+    this.joystickAConfig = {
+      x: this.gameWidth/6,
+      y: this.gameHeight*5/6,
+    }
+    this.joystickBConfig = {
+      x: this.gameWidth*5/6,
+      y: this.gameHeight*5/6,
+    }    
+    this.joystickCConfig = {
+      x: this.gameWidth*5/6,
+      y: this.gameHeight*3/6,
+      dir:'left&right',
+    }    
+    this.isDispensing = false;
+    this.isRecording = false;
+    this.isReplaying = false;
+  }
+   
+  createVirtualJoystick(config) {
+    let newJoyStick = this.plugins.get('rex-virtual-joystick-plugin"').add(
+        this,
+        Object.assign({}, config, {
+            enabled: true,
+            radius: 100,
+            base: this.add.image(0, 0, 'base').setDisplaySize(200, 200),
+            thumb: this.add.image(0, 0, 'thumb').setDisplaySize(75, 75),
+            normalizedX : 0.00,
+            normalizedY : 0.00,
+        })
+    ).on('update', this.updateJoystickState, this);
+    
+    
+  // Add an invisible input zone over the joystick base to limit the active area
+  let joystickZone = this.add.zone(config.x - 100, config.y - 100, 200, 200).setInteractive();
+  joystickZone.on('pointerdown', function (pointer) {
+    // Only activate the joystick if the pointerdown event started in this joystick's area
+    if (Phaser.Geom.Rectangle.Contains(joystickZone.getBounds(), pointer.x, pointer.y)) {
+      newJoyStick.setEnable(true);
+    } else {
+      newJoyStick.setEnable(false);
+    }
+  }, this);
+  joystickZone.on('pointerup', function () {
+    // Deactivate the joystick when the touch ends
+    newJoyStick.setEnable(false);
+  }, this);
+    
+    return newJoyStick;
+  }
+
+  create() {
+    //this.socket = io();
+    this.cursorDebugTextA = this.add.text(100, 200);
+    this.cursorDebugTextB = this.add.text(100, 200);
+    this.input.addPointer(1);
+
+    this.joystickA= this.createVirtualJoystick(this.joystickAConfig);
+    this.joystickB = this.createVirtualJoystick(this.joystickBConfig);
+    this.joystickC = this.createVirtualJoystick(this.joystickCConfig);
+    this.joysticks = [this.joystickA,this.joystickB,this.joystickC];
+
+    var dispenseSprite = this.add.sprite(this.gameWidth/6, this.gameHeight/2, 'silverdown');
+    dispenseSprite.scale = 5;
+   
+    this.dispenseButton = new Button(dispenseSprite);
+    this.dispenseButton.on('click', function()
+    {
+      console.log('clicky');
+      if(this.isDispensing){
+        dispenseSprite.setTexture('silverdown')
+        this.isDispensing = false;
+        socket.emit('action_keydown','SPACE');
+
+      }
+      else{
+        dispenseSprite.setTexture('silverdownpush')
+        this.isDispensing = true;
+        socket.emit('action_keydown','SPACE');
+      }
+    })
+    // if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    //   DeviceMotionEvent.requestPermission()
+    // }
+
+
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission()
+          .then(permissionState => {
+              if (permissionState === 'granted') {
+                  window.addEventListener('deviceorientation', this.handleOrientation, true);
+                  console.log('permission granted');
+                  socket.emit('keyboard_input', 'permission granted');
+
+              }
+          })
+          .catch(console.error);
+    } else {
+      console.log('orientation permission not granted');
+      socket.emit('keyboard_input', 'permission not granted');
+        // handle regular non iOS 13+ devices
+    }    
+
+    var orientationButtonSprite = this.add.sprite(this.gameWidth*19/20, this.gameHeight*7/8, 'silverT');
+    orientationButtonSprite.scale = 3;
+  
+    this.orientationButton = new Button(orientationButtonSprite);
+    this.orientationButton.on('click', () =>
+    {
+      console.log('orient_clicky');
+      if(this.orientationBroadcasting){
+        orientationButtonSprite.setTexture('silverT')
+        this.orientationBroadcasting = false;
+        // Stop broadcasting orientation data
+        clearInterval(this.orientationBroadcastInterval);
+        this.orientationBroadcastInterval = null;
+      }
+      else{
+        orientationButtonSprite.setTexture('silverTpush')
+        this.orientationBroadcasting = true;
+        this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 100);
+
+      }
+    })  
+
+    var button0sprite = this.add.sprite(this.gameWidth/6, this.gameHeight/6, 'blue0');
+    button0sprite.scale = 3;
+    var button1sprite = this.add.sprite(this.gameWidth/4, this.gameHeight/6, 'blue1');
+    button1sprite.scale = 3;
+    var button2sprite = this.add.sprite(this.gameWidth/3, this.gameHeight/6, 'blue2');
+    button2sprite.scale = 3;
+    var button3sprite = this.add.sprite(this.gameWidth/2.3, this.gameHeight/6, 'blue3');
+    button3sprite.scale = 3;
+    var centerButtonsprite = this.add.sprite(this.gameWidth*19/20, this.gameHeight*3/4, 'silverC');
+    centerButtonsprite.scale = 3;
+    var recordButtonSprite = this.add.sprite(this.gameWidth*5/6, this.gameHeight/6, 'redr');
+    recordButtonSprite.scale = 5;
+    var replayButtonSprite = this.add.sprite(this.gameWidth*4/6, this.gameHeight/6, 'greentriangle');
+    replayButtonSprite.scale = 3;
+
+    this.button0 = new Button(button0sprite);
+    this.button0.on('click', function()
+    {
+      console.log('clicky0');      
+        //just hardcoding output for now
+        // TODO find some way to share commands as a base class between mobile and desktop
+        socket.emit('action_keydown','0');
+      
+    })
+
+    this.button1 = new Button(button1sprite);
+    this.button1.on('click', function()
+    {
+      console.log('clicky1');      
+      socket.emit('action_keydown','1');
+        
+      
+    })
+
+    this.button2 = new Button(button2sprite);
+    this.button2.on('click', function()
+    {
+      console.log('clicky2');      
+      socket.emit('action_keydown','2');
+      
+    })
+
+    this.button3 = new Button(button3sprite);
+    this.button3.on('click', function()
+    {
+      console.log('clicky3');      
+      //hardcode mapped to Unload_Syringe
+      socket.emit('action_keydown','3');
+      
+    })
+
+    this.centerButton = new Button(centerButtonsprite);
+    this.centerButton.on('click', function()
+    {
+      console.log('clicky3');      
+      //hardcode mapped to Substrate_Neutral
+      socket.emit('action_keydown','X');
+      
+    })
+    
+    this.recordButton = new Button(recordButtonSprite);
+    this.recordButton.on('click', function()
+    {
+      console.log('clickyrec');      
+
+      if(this.isRecording){
+        recordButtonSprite.setTexture('redr')
+        this.isRecording = false;
+        //hardcode mapped to End_Run
+        socket.emit('action_keydown','N');
+
+      }
+      else{
+        recordButtonSprite.setTexture('redrpush')
+        this.isRecording = true;
+        //hardcode mapped to Begin_Run
+        socket.emit('action_keydown','B');
+
+      }
+    })
+
+    this.replayButton = new Button(replayButtonSprite);
+    this.replayButton.on('click', function()
+    {
+      console.log('clicky3');      
+      //hardcode mapped to Replay_Motif
+      socket.emit('action_keydown','R');
+      
+    })
+
+    this.setCursorDebugInfo();
+    this.updateJoystickState();
+    this.broadcastInterval = setInterval(() => this.broadcastPositions(), 20);
+
+  }
+
+
+  normalizedXAndYFromForce(){
+    this.joysticks.forEach(function(joystick){
+      var newX = joystick.forceX;
+      var newY = joystick.forceY;
+      
+      if (joystick.force > joystick.radius) { // Exceed radius
+        const angle = Math.floor(joystick.angle * 100) / 100;
+        const rad = angle * Math.PI / 180;   
+        //force x and y to be values intersecting radius at joystick.angle
+        newX = Math.cos(rad) * joystick.radius;
+        newY = Math.sin(rad) * joystick.radius;
+      }
+      joystick.normalizedX = newX/joystick.radius;//radius = max force
+      joystick.normalizedY = newY/joystick.radius;
+      joystick.normalizedX = (joystick.normalizedX).toPrecision(3);
+      joystick.normalizedY = (joystick.normalizedY).toPrecision(3);
+      // console.log('normalizedX: ' + joystick.normalizedX);
+      // console.log('normalizedY: ' + joystick.normalizedY);
+    });
+  }
+
+  broadcastPositions() {
+    var positions = [this.joystickA.normalizedX, this.joystickA.normalizedY,
+      this.joystickB.normalizedX, this.joystickB.normalizedY, this.joystickC.normalizedX]
+    
+    if(positions.some(el => el>0 || el<0)) {
+      var msg = null;
+      
+      //construct a msg if anything is nonzero
+      //msg = 'joystick_positions[';
+      msg = this.joystickB.normalizedX + '|';
+      msg += this.joystickB.normalizedY + '|';
+      msg += this.joystickA.normalizedX + '|';
+      msg += this.joystickA.normalizedY + '|';
+      msg += this.joystickC.normalizedX;
+      console.log('msg: ' + msg);
+
+      socket.emit('joystick_input',msg);
+      this.didBroadcastJSNeutral = false;
+    }
+    else if(!this.didBroadcastJSNeutral){
+      socket.emit('joystick_input','0|0|0|0|0');
+      this.didBroadcastJSNeutral = true;
+    }
+  }
+
+
+  handleDeviceOrientation = (event) => {
+    console.log('event.alpha: ', event.alpha);
+    this.deviceOrientation = {
+      alpha: event.alpha,
+      beta: event.beta,
+      gamma: event.gamma
+    };
+  }
+
+  broadcastDeviceOrientation() {
+    console.log('brodacastething')
+    if (this.orientationBroadcasting) {
+      var data = this.deviceOrientation.alpha + '|';
+      data += this.deviceOrientation.beta + '|';
+      data += this.deviceOrientation.gamma;
+      socket.emit('device_orientation', data);
+      console.log('werking')
+    }
+  }
+
+
+  update() {
+    this.updateJoystickState();   
+  }
+  
+  updateJoystickState() {     
+    // Set debug info about the cursor
+    this.normalizedXAndYFromForce()
+    this.setCursorDebugInfo();
+  }
+
+  setCursorDebugInfo = function() {
+    const force = Math.floor(this.joystickA.force * 100) / 100;
+    const angle = Math.floor(this.joystickA.angle * 100) / 100;
+    const x_pos = this.joystickA.normalizedX;
+    const y_pos = this.joystickA.normalizedY;
+    let text = `Force: ${force}\n`;
+    text += `Angle: ${angle}\n`;
+    text += `X: ${x_pos}\n`;
+    text += `Y: ${y_pos}\n`;
+    text += `FPS: ${this.sys.game.loop.actualFps}\n`;
+    //this.cursorDebugTextA.setText(text);
+    //this.joystickA.cursorDebugText.setText(text);
+  }
+
+
+
+}
