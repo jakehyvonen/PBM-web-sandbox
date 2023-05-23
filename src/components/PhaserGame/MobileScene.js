@@ -155,7 +155,7 @@ export default class MobileScene extends Phaser.Scene {
     button2sprite.scale = 3;
     var button3sprite = this.add.sprite(this.gameWidth/2.3, this.gameHeight/6, 'blue3');
     button3sprite.scale = 3;
-    var centerButtonsprite = this.add.sprite(this.gameWidth*9/10, this.gameHeight*3/4, 'silverC');
+    var centerButtonsprite = this.add.sprite(this.gameWidth*9/10, this.gameHeight*5/6, 'silverC');
     centerButtonsprite.scale = 3;
     var recordButtonSprite = this.add.sprite(this.gameWidth*5/6, this.gameHeight/6, 'redr');
     recordButtonSprite.scale = 5;
@@ -236,7 +236,7 @@ export default class MobileScene extends Phaser.Scene {
 
     this.setCursorDebugInfo();
     this.updateJoystickState();
-    this.broadcastInterval = setInterval(() => this.broadcastSyringeJoystick(), 20);
+    this.broadcastInterval = setInterval(() => this.broadcastJoysticks(), 50);
 
   }
 
@@ -264,7 +264,7 @@ export default class MobileScene extends Phaser.Scene {
   }
 
 
-  broadcastSyringeJoystick() {
+  broadcastJoysticks() {
     var positions = [this.joystickA.normalizedX, this.joystickA.normalizedY]
 
     if(positions.some(el => el>0 || el<0)) {
