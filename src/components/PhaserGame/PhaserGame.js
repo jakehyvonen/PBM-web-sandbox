@@ -15,8 +15,8 @@ class PhaserGame extends Component {
 
         scale: {
             parent: "game",
-            width: 1280,
-            height: 720,
+            width: 720,
+            height: 1280,
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
         },

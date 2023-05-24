@@ -50,12 +50,12 @@ export default class MobileScene extends Phaser.Scene {
    
     socket = openSocket(process.env.REACT_APP_NGROK_URL)
 
-    this.gameWidth = this.sys.game.config.width;
-    this.gameHeight = this.sys.game.config.height;    
+    this.gameHeight = this.sys.game.config.width;
+    this.gameWidth = this.sys.game.config.height;    
 
     this.joystickAConfig = {
-      x: this.gameWidth/6,
-      y: this.gameHeight*5/6,
+      x: this.gameHeight/6,
+      y: this.gameWidth*5/6,
     }
     this.isDispensing = false;
     this.isRecording = false;
@@ -103,9 +103,10 @@ export default class MobileScene extends Phaser.Scene {
     this.joystickA= this.createVirtualJoystick(this.joystickAConfig);
     this.joysticks = [this.joystickA];
 
-    var dispenseSprite = this.add.sprite(this.gameWidth/6, this.gameHeight/2, 'silverdown');
+    var dispenseSprite = this.add.sprite(this.gameHeight/2, this.gameWidth*2.6/3, 'silverdown');
     dispenseSprite.scale = 5;
-   
+    dispenseSprite.setAngle(90);
+
     this.dispenseButton = new Button(dispenseSprite);
     this.dispenseButton.on('click', function()
     {
@@ -125,8 +126,9 @@ export default class MobileScene extends Phaser.Scene {
 
     window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
 
-    var orientationButtonSprite = this.add.sprite(this.gameWidth*3/4, this.gameHeight*5/6, 'silverT');
+    var orientationButtonSprite = this.add.sprite(this.gameHeight/5, this.gameWidth/9, 'silverT');
     orientationButtonSprite.scale = 3;
+    orientationButtonSprite.setAngle(90);
   
     this.orientationButton = new Button(orientationButtonSprite);
     this.orientationButton.on('click', () =>
@@ -147,20 +149,34 @@ export default class MobileScene extends Phaser.Scene {
       }
     })  
 
-    var button0sprite = this.add.sprite(this.gameWidth/6, this.gameHeight/6, 'blue0');
-    button0sprite.scale = 3;
-    var button1sprite = this.add.sprite(this.gameWidth/4, this.gameHeight/6, 'blue1');
-    button1sprite.scale = 3;
-    var button2sprite = this.add.sprite(this.gameWidth/3, this.gameHeight/6, 'blue2');
-    button2sprite.scale = 3;
-    var button3sprite = this.add.sprite(this.gameWidth/2.3, this.gameHeight/6, 'blue3');
-    button3sprite.scale = 3;
-    var centerButtonsprite = this.add.sprite(this.gameWidth*9/10, this.gameHeight*5/6, 'silverC');
+    var centerButtonsprite = this.add.sprite(this.gameHeight/3, this.gameWidth/9, 'silverC');
     centerButtonsprite.scale = 3;
-    var recordButtonSprite = this.add.sprite(this.gameWidth*5/6, this.gameHeight/6, 'redr');
+    centerButtonsprite.setAngle(90);
+
+
+    var button0sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.8/3, 'blue0');
+    button0sprite.scale = 3;
+    button0sprite.setAngle(90);
+    var button1sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.5/3, 'blue1');
+    button1sprite.scale = 3;
+    button1sprite.setAngle(90);
+
+    var button2sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.2/3, 'blue2');
+    button2sprite.scale = 3;
+    button2sprite.setAngle(90);
+
+    var button3sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*1.9/3, 'blue3');
+    button3sprite.scale = 3;
+    button3sprite.setAngle(90);
+
+    var recordButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/9, 'redr');
     recordButtonSprite.scale = 5;
-    var replayButtonSprite = this.add.sprite(this.gameWidth*4/6, this.gameHeight/6, 'greentriangle');
+    recordButtonSprite.setAngle(90);
+
+    var replayButtonSprite = this.add.sprite(this.gameHeight*4/6, this.gameWidth/9, 'greentriangle');
     replayButtonSprite.scale = 3;
+    replayButtonSprite.setAngle(90);
+
 
     this.button0 = new Button(button0sprite);
     this.button0.on('click', function()
