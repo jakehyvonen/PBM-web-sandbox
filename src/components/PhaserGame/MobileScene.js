@@ -291,7 +291,7 @@ export default class MobileScene extends Phaser.Scene {
   handleDeviceOrientation = (event) => {
     //console.log('event.alpha: ', event.alpha);
     const { alpha, beta, gamma } = event;
-
+    //alpha is phone rotation, beta and gamma are tilt axes
     const roundedAlpha = parseFloat(alpha.toFixed(2));
     const roundedBeta = parseFloat(beta.toFixed(2));
     const roundedGamma = parseFloat(gamma.toFixed(2));

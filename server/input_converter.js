@@ -108,15 +108,38 @@ function handle_joystick_data(joystick_data)
 
 }
 
-function handle_device_orientation_data(device_orientation_data)
+function handle_device_orientation_data(deviceOrientationData)
 {
-    //we receive data almost in the way we need with | delimiters
-    //we're always going to be sending a Jog_All command:
-    var command = ERAS_actions.Device_Orientation;
-    command += ',' + device_orientation_data;
-    console.log('sending command from device_orientation: ' + command);
-    send_tcp_msg(command);
+    //we receive data with | delimiters, but only care about beta and gamma
+    const values = deviceOrientationData.split("|");
+    const beta = parseFloat(values[1]);
+    const gamma = parseFloat(values[2]);    
+    const betaServoAngle = convertToServoAngle(beta).toString();
+    const gammaServoAngle = convertToServoAngle(gamma).toString();
+    
+    // Use betaServoAngle and gammaServoAngle as needed
+    console.log("Beta Servo Angle:", betaServoAngle);
+    console.log("Gamma Servo Angle:", gammaServoAngle);
+  
+    // Send the servo angles as strings to the Python process
+    const command = `Substrate_Target_Orientation,${betaServoAngle}|${gammaServoAngle}`;
+    send_tcp_msg(command);  
 
+}
+
+function convertToServoAngle(deviceOrientationValue) {
+    let servoAngle = 0;
+
+    if (deviceOrientationValue <= -45) {
+        servoAngle = 0;
+    } else if (deviceOrientationValue >= 45) {
+        servoAngle = 180;
+    } else {
+        // Map the beta value to the servo angle between 0 and 180
+        servoAngle = Math.round(((deviceOrientationValue + 45) / 90) * 180);
+    }
+
+    return servoAngle.toString();
 }
 
 // TODO: combine handle_action_keydown and handle_keyboard_data into one thing

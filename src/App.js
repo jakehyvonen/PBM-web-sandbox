@@ -1,47 +1,61 @@
-import React, { useEffect, useState, useRef } from "react";
+
+import React, { useEffect } from "react";
 import "./styles.css";
-import {io} from 'socket.io-client'
-import _ from 'lodash'; // Import lodash for throttling
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import PhaserGame from './components/PhaserGame/PhaserGame';
 
 const App = () => {
-  // const [time, setTime] = useState('fetching')
-  // const [orientation, setOrientation] = useState({ alpha: 0, beta: 0, gamma: 0 });  
-  // const socket = useRef(null);
+  const handle = useFullScreenHandle();
 
-  // useEffect(()=>{
-  //   socket.current = io(process.env.REACT_APP_NGROK_URL)
-  //   socket.current.on('connect', ()=>console.log(socket.current.id))
-  //   socket.current.on('connect_error', ()=>{
-  //     setTimeout(()=>socket.current.connect(),5000)
-  //   })
-  //   socket.current.on('disconnect',()=>setTime('server disconnected'))
-
-  // }, []);
+  useEffect(() => {
+    // Lock the screen to landscape mode if the API exists
+    // eslint-disable-next-line no-restricted-globals
+    if (screen.orientation && screen.orientation.lock) {
+      // eslint-disable-next-line no-restricted-globals
+      screen.orientation.lock('landscape').catch(error => {
+        console.log("Could not lock screen orientation:", error);
+      });
+    }
+  }, []);
 
   return (
-  <div id="container">
-    <div id="phasergame">
-      <PhaserGame></PhaserGame>
+    <div id="container">
+      <button id="fsbutton" onClick={handle.enter}>
+        Enter fullscreen
+      </button>
+      <FullScreen handle={handle}>
+        <div id="phasergame">
+          <PhaserGame></PhaserGame>
+        </div>
+      </FullScreen>
     </div>
-  </div>
   );
 }
 
 export default App;
 
 
-    // const handleOrientation = _.throttle((e) => {
-    //   const { alpha, beta, gamma } = e;
-    //   const roundedAlpha = parseFloat(alpha.toFixed(2));
-    //   const roundedBeta = parseFloat(beta.toFixed(2));
-    //   const roundedGamma = parseFloat(gamma.toFixed(2));
-    //   setOrientation({ alpha: roundedAlpha, beta: roundedBeta, gamma: roundedGamma });
-    //   socket.current.emit('deviceOrientation', { alpha: roundedAlpha, beta: roundedBeta, gamma: roundedGamma });
-    // }, 1000);  // Emit the event at most once per second
+// import React, { useEffect, useState, useRef } from "react";
+// import "./styles.css";
+// import { FullScreen, useFullScreenHandle } from "react-full-screen";
+// import _ from 'lodash'; // Import lodash for throttling
+// import PhaserGame from './components/PhaserGame/PhaserGame';
 
-    // window.addEventListener('deviceorientation', handleOrientation);
-  
-    // return () => {
-    //   window.removeEventListener('deviceorientation', handleOrientation);
-    // };
+// const App = () => {
+//   const handle = useFullScreenHandle();
+ 
+//   return (
+//     <div id="container">
+//       <button id="fsbutton" onClick={handle.enter}>
+//         Enter fullscreen
+//       </button>
+//       <FullScreen handle={handle}>
+//         <div id="phasergame">
+//           <PhaserGame></PhaserGame>
+//         </div>
+//       </FullScreen>
+//     </div>
+//   );
+// }
+
+// export default App;
