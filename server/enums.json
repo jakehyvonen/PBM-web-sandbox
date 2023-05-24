@@ -1,5 +1,5 @@
 {
-    "SIE_Action": {
+    "ERAS_Action": {
         "Load_Substrate": "Load_Substrate",
         "Unload_Substrate": "Unload_Substrate",
         "Swap_Substrate": "Swap_Substrate",
@@ -30,9 +30,9 @@
         "Home_Syringe": "Home_Syringe",
         "Power_On": "Power_On",
         "Power_Off": "Power_Off",
-        "Device_Orientation": "Device_Orientation"
+        "Substrate_Target_Orientation": "Substrate_Target_Orientation" 
     },
-    "SIE_Device": {
+    "ERAS_Device": {
         "syringe_cnc": "syringe_cnc",
         "syringe_pump": "syringe_pump",
         "syringe_servos": "syringe_servos",

@@ -1,12 +1,12 @@
 /**
  * Translates data from client processes into messages
- * for IPC that comply with SIE command syntax
+ * for IPC that comply with ERAS command syntax
  */
 
 util = require('util');
 net = require('net');
 const PBM_enums = require('./enums.json');
-const SIE_actions = PBM_enums.SIE_Action;
+const ERAS_actions = PBM_enums.ERAS_Action;
 
 const jog_vectors = {
     "plus_u":[1, 0, 0.0, 0.0, 0.0],
@@ -53,27 +53,27 @@ const keyboard_jog_dict = {
 
 //TODO be able to record multiple motifs in a run
 const keyboard_action_dict = {
-    "B":SIE_actions.Begin_Run,
-    "N":SIE_actions.End_Run,
-    "H":SIE_actions.Home_Syringe,
-    "J":SIE_actions.Swap_Next_Syringe,
-    "K":SIE_actions.Swap_Previous_Syringe,
-    "L":SIE_actions.Unload_Syringe,
-    "P":SIE_actions.Power_Off,
-    "R":SIE_actions.Replay_Motif,
-    "T":SIE_actions.Replay_Run,
-    "SPACE":SIE_actions.Toggle_Dispense,
-    "V":SIE_actions.Toggle_Withdraw,
-    "X":SIE_actions.Substrate_Neutral,
-    "G":SIE_actions.Syringe_CNC_Mid,
-    "0":SIE_actions.Swap_Syringe,
-    "1":SIE_actions.Swap_Syringe,
+    "B":ERAS_actions.Begin_Run,
+    "N":ERAS_actions.End_Run,
+    "H":ERAS_actions.Home_Syringe,
+    "J":ERAS_actions.Swap_Next_Syringe,
+    "K":ERAS_actions.Swap_Previous_Syringe,
+    "L":ERAS_actions.Unload_Syringe,
+    "P":ERAS_actions.Power_Off,
+    "R":ERAS_actions.Replay_Motif,
+    "T":ERAS_actions.Replay_Run,
+    "SPACE":ERAS_actions.Toggle_Dispense,
+    "V":ERAS_actions.Toggle_Withdraw,
+    "X":ERAS_actions.Substrate_Neutral,
+    "G":ERAS_actions.Syringe_CNC_Mid,
+    "0":ERAS_actions.Swap_Syringe,
+    "1":ERAS_actions.Swap_Syringe,
     //commented out because not yet physically active
-    "2":SIE_actions.Swap_Syringe,
-    "3":SIE_actions.Swap_Syringe,
-    //"4":SIE_actions.Swap_Syringe,
-    //"5":SIE_actions.Swap_Syringe,
-    //"6":SIE_actions.Swap_Syringe,
+    "2":ERAS_actions.Swap_Syringe,
+    "3":ERAS_actions.Swap_Syringe,
+    //"4":ERAS_actions.Swap_Syringe,
+    //"5":ERAS_actions.Swap_Syringe,
+    //"6":ERAS_actions.Swap_Syringe,
 };
 
 const action_dict_keys = Object.keys(keyboard_action_dict);
@@ -101,7 +101,7 @@ function handle_joystick_data(joystick_data)
 {
     //we receive data almost in the way we need with | delimiters
     //we're always going to be sending a Jog_All command:
-    var command = SIE_actions.Jog_All;
+    var command = ERAS_actions.Jog_All;
     command += ',' + joystick_data;
     console.log('sending command from joystick: ' + command);
     send_tcp_msg(command);
@@ -112,7 +112,7 @@ function handle_device_orientation_data(device_orientation_data)
 {
     //we receive data almost in the way we need with | delimiters
     //we're always going to be sending a Jog_All command:
-    var command = SIE_actions.Device_Orientation;
+    var command = ERAS_actions.Device_Orientation;
     command += ',' + device_orientation_data;
     console.log('sending command from device_orientation: ' + command);
     send_tcp_msg(command);
@@ -133,7 +133,7 @@ function handle_action_keydown(key)
         console.log('element in action_dict_keys: ' + key);
         //console.log('corresponding action: ' + keyboard_action_dict[element]);
         command = keyboard_action_dict[key]
-        if(command == SIE_actions.Swap_Syringe)
+        if(command == ERAS_actions.Swap_Syringe)
         {//add the syringe number data
             command_data = [key];
         }
@@ -141,7 +141,7 @@ function handle_action_keydown(key)
     else{console.log('key not in action_dict_keys!')}
 
     if(command_data.length==1)
-    {//the SIE_Action includes data, but is not jogging
+    {//the ERAS_Action includes data, but is not jogging
         command = command + ',' + command_data[0];
         console.log('action command data detected: ' + command);
     }
@@ -167,7 +167,7 @@ function handle_keyboard_data(keyboard_data)
             console.log('element in action_dict_keys: ' + element);
             //console.log('corresponding action: ' + keyboard_action_dict[element]);
             command = keyboard_action_dict[element]
-            if(command == SIE_actions.Swap_Syringe)
+            if(command == ERAS_actions.Swap_Syringe)
             {//add the syringe number data
                 command_data = [element];
             }
@@ -176,7 +176,7 @@ function handle_keyboard_data(keyboard_data)
         }
         else if(jog_dict_keys.includes(element))
         {
-            command = SIE_actions.Jog_All;
+            command = ERAS_actions.Jog_All;
             if(command_data.length>1)
             {//we're adding to an established vector
                 command_data = add_vectors(command_data, keyboard_jog_dict[element]);
@@ -189,7 +189,7 @@ function handle_keyboard_data(keyboard_data)
         }
     });
     if(command_data.length==1)
-    {//the SIE_Action includes data, but is not jogging
+    {//the ERAS_Action includes data, but is not jogging
         command = command + ',' + command_data[0];
         console.log('action command data detected: ' + command);
     }
@@ -205,19 +205,19 @@ function handle_keyboard_data(keyboard_data)
 
 function Begin_Session(){
     // TODO include the user in this message
-    send_tcp_msg(SIE_actions.Begin_Session)
+    send_tcp_msg(ERAS_actions.Begin_Session)
 }
 
 function End_Session(){
-    send_tcp_msg(SIE_actions.End_Session)
+    send_tcp_msg(ERAS_actions.End_Session)
 }
 
 function Begin_Run(){
-    send_tcp_msg(SIE_actions.Begin_Run)
+    send_tcp_msg(ERAS_actions.Begin_Run)
 }
 
 function End_Run(){
-    send_tcp_msg(SIE_actions.End_Run)
+    send_tcp_msg(ERAS_actions.End_Run)
 }
 
 exports.Begin_Session = Begin_Session;
