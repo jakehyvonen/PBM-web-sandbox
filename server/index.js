@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 
 io.on('connection',(socket)=>{
   console.log('client connected: ',socket.id)
-  
+  converter.Begin_Session()
   // socket.on('deviceOrientation', (data) => {
   //   console.log('Received device orientation:', data);
   // });

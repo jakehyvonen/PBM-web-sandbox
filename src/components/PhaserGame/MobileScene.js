@@ -3,6 +3,7 @@ import Phaser from 'phaser'
 import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js';
 import openSocket from 'socket.io-client';
 import _ from 'lodash'; // Import lodash for throttling
+import DoubleClickButton from './DoubleClickButton.js';
 
 var socket = null;
 
@@ -55,45 +56,13 @@ export default class MobileScene extends Phaser.Scene {
 
     this.joystickAConfig = {
       x: this.gameHeight/6,
-      y: this.gameWidth*5/6,
+      y: this.gameWidth/9,
     }
     this.isDispensing = false;
     this.isRecording = false;
     this.isReplaying = false;
   }
    
-  createVirtualJoystick(config) {
-    let newJoyStick = this.plugins.get('rex-virtual-joystick-plugin"').add(
-        this,
-        Object.assign({}, config, {
-            enabled: true,
-            radius: 100,
-            base: this.add.image(0, 0, 'base').setDisplaySize(200, 200),
-            thumb: this.add.image(0, 0, 'thumb').setDisplaySize(75, 75),
-            normalizedX : 0.00,
-            normalizedY : 0.00,
-        })
-    ).on('update', this.updateJoystickState, this);
-    
-    
-  // Add an invisible input zone over the joystick base to limit the active area
-  let joystickZone = this.add.zone(config.x - 100, config.y - 100, 200, 200).setInteractive();
-  joystickZone.on('pointerdown', function (pointer) {
-    // Only activate the joystick if the pointerdown event started in this joystick's area
-    if (Phaser.Geom.Rectangle.Contains(joystickZone.getBounds(), pointer.x, pointer.y)) {
-      newJoyStick.setEnable(true);
-    } else {
-      newJoyStick.setEnable(false);
-    }
-  }, this);
-  joystickZone.on('pointerup', function () {
-    // Deactivate the joystick when the touch ends
-    newJoyStick.setEnable(false);
-  }, this);
-    
-    return newJoyStick;
-  }
-
   create() {
     //this.socket = io();
     this.cursorDebugTextA = this.add.text(100, 200);
@@ -103,7 +72,7 @@ export default class MobileScene extends Phaser.Scene {
     this.joystickA= this.createVirtualJoystick(this.joystickAConfig);
     this.joysticks = [this.joystickA];
 
-    var dispenseSprite = this.add.sprite(this.gameHeight/2, this.gameWidth*2.6/3, 'silverdown');
+    var dispenseSprite = this.add.sprite(this.gameHeight/2, this.gameWidth/9, 'silverdown');
     dispenseSprite.scale = 5;
     dispenseSprite.setAngle(90);
 
@@ -126,7 +95,7 @@ export default class MobileScene extends Phaser.Scene {
 
     window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
 
-    var orientationButtonSprite = this.add.sprite(this.gameHeight/5, this.gameWidth/9, 'silverT');
+    var orientationButtonSprite = this.add.sprite(this.gameHeight/2, this.gameWidth*2.7/3, 'silverT');
     orientationButtonSprite.scale = 3;
     orientationButtonSprite.setAngle(90);
   
@@ -144,12 +113,12 @@ export default class MobileScene extends Phaser.Scene {
       else{
         orientationButtonSprite.setTexture('silverTpush')
         this.orientationBroadcasting = true;
-        this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 200);
+        this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 50);
 
       }
     })  
 
-    var centerButtonsprite = this.add.sprite(this.gameHeight/3, this.gameWidth/9, 'silverC');
+    var centerButtonsprite = this.add.sprite(this.gameHeight/2, this.gameWidth*5/6, 'silverC');
     centerButtonsprite.scale = 3;
     centerButtonsprite.setAngle(90);
 
@@ -173,7 +142,7 @@ export default class MobileScene extends Phaser.Scene {
     recordButtonSprite.scale = 5;
     recordButtonSprite.setAngle(90);
 
-    var replayButtonSprite = this.add.sprite(this.gameHeight*4/6, this.gameWidth/9, 'greentriangle');
+    var replayButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/3, 'greentriangle');
     replayButtonSprite.scale = 3;
     replayButtonSprite.setAngle(90);
 
@@ -256,6 +225,38 @@ export default class MobileScene extends Phaser.Scene {
 
   }
 
+
+  createVirtualJoystick(config) {
+    let newJoyStick = this.plugins.get('rex-virtual-joystick-plugin"').add(
+        this,
+        Object.assign({}, config, {
+            enabled: true,
+            radius: 100,
+            base: this.add.image(0, 0, 'base').setDisplaySize(200, 200),
+            thumb: this.add.image(0, 0, 'thumb').setDisplaySize(75, 75),
+            normalizedX : 0.00,
+            normalizedY : 0.00,
+        })
+    ).on('update', this.updateJoystickState, this);
+    
+    
+  // Add an invisible input zone over the joystick base to limit the active area
+  let joystickZone = this.add.zone(config.x - 100, config.y - 100, 200, 200).setInteractive();
+  joystickZone.on('pointerdown', function (pointer) {
+    // Only activate the joystick if the pointerdown event started in this joystick's area
+    if (Phaser.Geom.Rectangle.Contains(joystickZone.getBounds(), pointer.x, pointer.y)) {
+      newJoyStick.setEnable(true);
+    } else {
+      newJoyStick.setEnable(false);
+    }
+  }, this);
+  joystickZone.on('pointerup', function () {
+    // Deactivate the joystick when the touch ends
+    newJoyStick.setEnable(false);
+  }, this);
+    
+    return newJoyStick;
+  }
 
 
   normalizedXAndYFromForce(){
