@@ -38,10 +38,12 @@ export default class MobileScene extends Phaser.Scene {
     this.load.image('silverTpush', './assets/silver-T-pushed.png');
     this.load.image('silverdown', './assets/silver-!arrowdown.png');
     this.load.image('silverdownpush', './assets/silver-!arrowdown-pushed.png');
+    this.load.image('silverleft', './assets/silver-!arrowleft.png');
+    this.load.image('silverleftpush', './assets/silver-!arrowleft-pushed.png');
+    this.load.image('silverright', './assets/silver-!arrowright.png');
+    this.load.image('silverrightpush', './assets/silver-!arrowright-pushed.png');
     this.load.image('redr', './assets/red-R.png');
     this.load.image('redrpush', './assets/red-R-pushed.png');
-    this.load.image('yellowblank', './assets/yellow-!blank.png');
-    this.load.image('yellowblankpush', './assets/yellow-!blank-pushed.png');
     this.load.plugin('rex-virtual-joystick-plugin"', VirtualJoystickPlugin, true);   
 		// sprites, note: see free sprite atlas creation tool here https://www.leshylabs.com/apps/sstool/
   
@@ -59,6 +61,8 @@ export default class MobileScene extends Phaser.Scene {
       y: this.gameWidth/9,
     }
     this.isDispensing = false;
+    this.isRotatingCW = false;
+    this.isRotatingCCW = false;
     this.isRecording = false;
     this.isReplaying = false;
   }
@@ -79,7 +83,7 @@ export default class MobileScene extends Phaser.Scene {
     this.dispenseButton = new Button(dispenseSprite);
     this.dispenseButton.on('click', function()
     {
-      console.log('clicky');
+      console.log('clicked dispense');
       if(this.isDispensing){
         dispenseSprite.setTexture('silverdown')
         this.isDispensing = false;
@@ -92,6 +96,64 @@ export default class MobileScene extends Phaser.Scene {
         socket.emit('action_keydown','SPACE');
       }
     })
+
+    var rotateCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.7/3, 'silverright');
+    rotateCWSprite.scale = 4;
+    rotateCWSprite.setAngle(90);
+
+    var rotateCCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.3/3, 'silverleft');
+    rotateCCWSprite.scale = 4;
+    rotateCCWSprite.setAngle(90);
+    // this.isRotatingCW = false;
+    // this.isRotatingCCW = false;
+    
+    this.updateRotateButtonStates = function() {
+      if (this.isRotatingCW) {
+        rotateCWSprite.setTexture('silverrightpush');
+        rotateCCWSprite.setTexture('silverleft');
+      } else if (this.isRotatingCCW) {
+        rotateCWSprite.setTexture('silverright');
+        rotateCCWSprite.setTexture('silverleftpush');
+      } else {
+        rotateCWSprite.setTexture('silverright');
+        rotateCCWSprite.setTexture('silverleft');
+      }
+    };
+    
+    this.rotateCWButton = new Button(rotateCWSprite);
+    this.rotateCWButton.on('click', function() {
+      console.log('clicked rotate CW');
+      if(this.isRotatingCW){
+        this.isRotatingCW = false;
+        socket.emit('action_keydown','E');
+      } else if(this.isRotatingCCW){
+        this.isRotatingCW = true;
+        this.isRotatingCCW = false;
+        socket.emit('action_keydown','E');
+      } else {
+        this.isRotatingCW = true;
+        socket.emit('action_keydown','E');
+      }
+      this.updateRotateButtonStates();
+    }.bind(this));
+    
+    this.rotateCCWButton = new Button(rotateCCWSprite);
+    this.rotateCCWButton.on('click', function() {
+      console.log('clicked rotate CCW');
+      if(this.isRotatingCCW){
+        this.isRotatingCCW = false;
+        socket.emit('action_keydown','Q');
+      } else if(this.isRotatingCW){
+        this.isRotatingCCW = true;
+        this.isRotatingCW = false;
+        socket.emit('action_keydown','Q');
+      } else {
+        this.isRotatingCCW = true;
+        socket.emit('action_keydown','Q');
+      }
+      this.updateRotateButtonStates();
+    }.bind(this));
+    
 
     window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
 

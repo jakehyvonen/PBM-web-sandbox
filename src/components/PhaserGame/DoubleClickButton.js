@@ -1,36 +1,58 @@
-import Button from 'phaser3-rex-plugins/plugins/input/button/Button.js';
+import Phaser from 'phaser';
 
-export default class DoubleClickButton extends Button {
-    constructor(scene, sprite, clickCallback, doubleClickCallback, doubleClickDelay = 300) {
-        super(sprite);
-        this.scene = scene;
-        this.clickCallback = clickCallback;
-        this.doubleClickCallback = doubleClickCallback;
-        this.doubleClickDelay = doubleClickDelay;
+export default class DoubleClickButton extends Phaser.GameObjects.Sprite {
+    constructor(scene, x, y, texture, onClick, onDoubleClick, clickDelay = 300) {
+        super(scene, x, y, texture);
+
+        this.onClick = onClick;
+        this.onDoubleClick = onDoubleClick;
+        this.clickDelay = clickDelay;
+
         this.clickCount = 0;
-        this.lastClickTime = 0;
+        this.clickTimer = null;
+        this.buttonState = 'up'; // 'up' or 'down'
+
         this.setInteractive();
+        this.on('pointerdown', this.onDown, this);
+        this.on('pointerup', this.onUp, this);
+    }
 
-        this.on('click', () => {
-            this.clickCount++;
-            if (this.clickCount === 1) {
-                this.lastClickTime = Date.now();
-                this.clickCallback();
-            } else if (this.clickCount === 2) {
-                if ((Date.now() - this.lastClickTime) < this.doubleClickDelay) {
-                    this.doubleClickCallback();
+    toggleState() {
+        if (this.buttonState === 'up') {
+            this.buttonState = 'down';
+            this.sprite.setTexture(this.downTexture);
+        } else {
+            this.buttonState = 'up';
+            this.sprite.setTexture(this.upTexture);
+        }
+    }
+
+    onDown() {
+        if (this.buttonState === 'up') {
+            this.sprite.setTexture(this.downTexture);
+        } else {
+            this.sprite.setTexture(this.upTexture);
+        }
+    }
+
+    onUp() {
+        if (this.buttonState === 'down') {
+            this.sprite.setTexture(this.upTexture);
+        } else {
+            this.sprite.setTexture(this.downTexture);
+        }
+
+        this.clickCount++;
+        if (this.clickCount === 1) {
+            this.clickTimer = this.scene.time.delayedCall(this.clickDelay, () => {
+                if (this.clickCount === 1) {
+                    this.onClick();
+                    this.toggleState(); // Toggle button state after the single click
                 } else {
-                    this.clickCount = 1;
-                    this.lastClickTime = Date.now();
-                    this.clickCallback();
+                    this.onDoubleClick();
                 }
-            }
-        });
-
-        this.scene.input.on('pointerup', () => {
-            if ((Date.now() - this.lastClickTime) >= this.doubleClickDelay) {
                 this.clickCount = 0;
-            }
-        }, this);
+            }, [], this);
+        }
     }
 }

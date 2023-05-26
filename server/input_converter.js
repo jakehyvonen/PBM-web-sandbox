@@ -47,8 +47,8 @@ const keyboard_jog_dict = {
     "UP":jog_vectors['minus_x'],
     "RIGHT":jog_vectors['plus_y'],
     "LEFT":jog_vectors['minus_y'],
-    "E":jog_vectors['plus_z'],
-    "Q":jog_vectors['minus_z'],
+    // "E":jog_vectors['plus_z'], no longer jogging rotation
+    // "Q":jog_vectors['minus_z'],
 };
 
 //TODO be able to record multiple motifs in a run
@@ -62,6 +62,8 @@ const keyboard_action_dict = {
     "P":ERAS_actions.Power_Off,
     "R":ERAS_actions.Replay_Motif,
     "T":ERAS_actions.Replay_Run,
+    "E":ERAS_actions.Toggle_Rotation_CW,
+    "Q":ERAS_actions.Toggle_Rotation_CCW,
     "SPACE":ERAS_actions.Toggle_Dispense,
     "V":ERAS_actions.Toggle_Withdraw,
     "X":ERAS_actions.Substrate_Neutral,
