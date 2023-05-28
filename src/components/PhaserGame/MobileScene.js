@@ -3,7 +3,6 @@ import Phaser from 'phaser'
 import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js';
 import openSocket from 'socket.io-client';
 import _ from 'lodash'; // Import lodash for throttling
-import DoubleClickButton from './DoubleClickButton.js';
 
 var socket = null;
 
@@ -154,7 +153,12 @@ export default class MobileScene extends Phaser.Scene {
       this.updateRotateButtonStates();
     }.bind(this));
     
+    if (!('ondeviceorientation' in window)) {
+      // Device Orientation isn't supported!
+      console.log('device orientation is not supported');
+    };
 
+    
     window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
 
     var orientationButtonSprite = this.add.sprite(this.gameHeight/2, this.gameWidth*2.7/3, 'silverT');
@@ -288,6 +292,29 @@ export default class MobileScene extends Phaser.Scene {
   }
 
 
+  handleDeviceOrientation = (event) => {
+    //console.log('event.alpha: ', event.alpha);
+    const { alpha, beta, gamma } = event;
+    //alpha is phone rotation, beta and gamma are tilt axes
+    const roundedAlpha = parseFloat(alpha.toFixed(2));
+    const roundedBeta = parseFloat(beta.toFixed(2));
+    const roundedGamma = parseFloat(gamma.toFixed(2));
+    this.deviceOrientation = {
+      alpha: roundedAlpha,
+      beta: roundedBeta,
+      gamma: roundedGamma
+    }
+  }
+
+  broadcastDeviceOrientation() {
+    if (this.orientationBroadcasting) {
+      var data = this.deviceOrientation.alpha + '|';
+      data += this.deviceOrientation.beta + '|';
+      data += this.deviceOrientation.gamma;
+      socket.emit('device_orientation', data);
+    }
+  }
+
   createVirtualJoystick(config) {
     let newJoyStick = this.plugins.get('rex-virtual-joystick-plugin"').add(
         this,
@@ -366,29 +393,6 @@ export default class MobileScene extends Phaser.Scene {
     }
   }
 
-
-  handleDeviceOrientation = (event) => {
-    //console.log('event.alpha: ', event.alpha);
-    const { alpha, beta, gamma } = event;
-    //alpha is phone rotation, beta and gamma are tilt axes
-    const roundedAlpha = parseFloat(alpha.toFixed(2));
-    const roundedBeta = parseFloat(beta.toFixed(2));
-    const roundedGamma = parseFloat(gamma.toFixed(2));
-    this.deviceOrientation = {
-      alpha: roundedAlpha,
-      beta: roundedBeta,
-      gamma: roundedGamma
-    };
-  };
-
-  broadcastDeviceOrientation() {
-    if (this.orientationBroadcasting) {
-      var data = this.deviceOrientation.alpha + '|';
-      data += this.deviceOrientation.beta + '|';
-      data += this.deviceOrientation.gamma;
-      socket.emit('device_orientation', data);
-    }
-  }
 
 
   update() {
