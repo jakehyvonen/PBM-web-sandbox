@@ -132,13 +132,15 @@ function handle_device_orientation_data(deviceOrientationData)
 function convertToServoAngle(deviceOrientationValue) {
     let servoAngle = 0;
 
-    if (deviceOrientationValue <= -45) {
+    sensitivityAngle = 67;
+
+    if (deviceOrientationValue <= -1 * sensitivityAngle) {
         servoAngle = 0;
-    } else if (deviceOrientationValue >= 45) {
+    } else if (deviceOrientationValue >= sensitivityAngle) {
         servoAngle = 180;
     } else {
         // Map the beta value to the servo angle between 0 and 180
-        servoAngle = Math.round(((deviceOrientationValue + 45) / 90) * 180);
+        servoAngle = Math.round(((deviceOrientationValue + sensitivityAngle) / (2 * sensitivityAngle)) * 180);
     }
 
     return servoAngle.toString();

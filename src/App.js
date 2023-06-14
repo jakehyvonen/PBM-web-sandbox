@@ -7,16 +7,16 @@ import PhaserGame from './components/PhaserGame/PhaserGame';
 const App = () => {
   const handle = useFullScreenHandle();
 
-  useEffect(() => {
-    // Lock the screen to landscape mode if the API exists
-    // eslint-disable-next-line no-restricted-globals
-    if (screen.orientation && screen.orientation.lock) {
-      // eslint-disable-next-line no-restricted-globals
-      screen.orientation.lock('landscape').catch(error => {
-        console.log("Could not lock screen orientation:", error);
-      });
-    }
-  }, []);
+  // useEffect(() => {
+  //   // Lock the screen to landscape mode if the API exists
+  //   // eslint-disable-next-line no-restricted-globals
+  //   if (screen.orientation && screen.orientation.lock) {
+  //     // eslint-disable-next-line no-restricted-globals
+  //     screen.orientation.lock('landscape').catch(error => {
+  //       console.log("Could not lock screen orientation:", error);
+  //     });
+  //   }
+  // }, []);
 
   return (
     <div id="container">

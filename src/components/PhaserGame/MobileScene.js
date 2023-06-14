@@ -156,7 +156,11 @@ export default class MobileScene extends Phaser.Scene {
     if (!('ondeviceorientation' in window)) {
       // Device Orientation isn't supported!
       console.log('device orientation is not supported');
-    };
+    }
+    else
+    {
+      console.log('device orientation is supported');
+    }
 
     
     window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
@@ -295,6 +299,7 @@ export default class MobileScene extends Phaser.Scene {
   handleDeviceOrientation = (event) => {
     //console.log('event.alpha: ', event.alpha);
     const { alpha, beta, gamma } = event;
+  
     //alpha is phone rotation, beta and gamma are tilt axes
     const roundedAlpha = parseFloat(alpha.toFixed(2));
     const roundedBeta = parseFloat(beta.toFixed(2));
@@ -328,22 +333,6 @@ export default class MobileScene extends Phaser.Scene {
         })
     ).on('update', this.updateJoystickState, this);
     
-    
-  // Add an invisible input zone over the joystick base to limit the active area
-  let joystickZone = this.add.zone(config.x - 100, config.y - 100, 200, 200).setInteractive();
-  joystickZone.on('pointerdown', function (pointer) {
-    // Only activate the joystick if the pointerdown event started in this joystick's area
-    if (Phaser.Geom.Rectangle.Contains(joystickZone.getBounds(), pointer.x, pointer.y)) {
-      newJoyStick.setEnable(true);
-    } else {
-      newJoyStick.setEnable(false);
-    }
-  }, this);
-  joystickZone.on('pointerup', function () {
-    // Deactivate the joystick when the touch ends
-    newJoyStick.setEnable(false);
-  }, this);
-    
     return newJoyStick;
   }
 
@@ -351,7 +340,7 @@ export default class MobileScene extends Phaser.Scene {
   normalizedXAndYFromForce(){
     this.joysticks.forEach(function(joystick){
       var newX = joystick.forceX;
-      var newY = joystick.forceY;
+      var newY = joystick.forceY * -1.0; //reverse y-dir so it's intuitive
       
       if (joystick.force > joystick.radius) { // Exceed radius
         const angle = Math.floor(joystick.angle * 100) / 100;
