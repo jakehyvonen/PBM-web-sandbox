@@ -346,7 +346,7 @@ export default class MobileScene extends Phaser.Scene {
   normalizedXAndYFromForce(){
     this.joysticks.forEach(function(joystick){
       var newX = joystick.forceX;
-      var newY = joystick.forceY * -1.0; //reverse y-dir so it's intuitive
+      var newY = joystick.forceY;
       
       if (joystick.force > joystick.radius) { // Exceed radius
         const angle = Math.floor(joystick.angle * 100) / 100;
