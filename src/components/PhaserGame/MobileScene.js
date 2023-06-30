@@ -154,7 +154,6 @@ export default class MobileScene extends Phaser.Scene {
       this.updateRotateButtonStates();
     }.bind(this));
     
-<<<<<<< HEAD
     if (!('ondeviceorientation' in window)) {
       // Device Orientation isn't supported!
       console.log('device orientation is not supported');
@@ -163,8 +162,6 @@ export default class MobileScene extends Phaser.Scene {
     {
       console.log('device orientation is supported');
     }
-=======
->>>>>>> parent of 5977e5d... tweak
 
     window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
 
@@ -299,7 +296,6 @@ export default class MobileScene extends Phaser.Scene {
   }
 
 
-<<<<<<< HEAD
   handleDeviceOrientation = (event) => {
     //console.log('event.alpha: ', event.alpha);
     const { alpha, beta, gamma } = event;
@@ -324,8 +320,6 @@ export default class MobileScene extends Phaser.Scene {
     }
   }
 
-=======
->>>>>>> parent of 5977e5d... tweak
   createVirtualJoystick(config) {
     let newJoyStick = this.plugins.get('rex-virtual-joystick-plugin"').add(
         this,
