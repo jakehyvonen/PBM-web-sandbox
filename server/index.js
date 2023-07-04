@@ -36,6 +36,11 @@ io.on('connection',(socket)=>{
     console.log(reason)
   })
 
+  socket.on('data', (data) => {
+    console.log('Received from Python:', data.toString());
+    socket.end();
+  });
+
 
   socket.on('action_keydown', function (action_data)
   {

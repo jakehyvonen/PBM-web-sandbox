@@ -54,6 +54,10 @@ export default class MobileScene extends Phaser.Scene {
   init() {
    
     socket = openSocket(process.env.REACT_APP_NGROK_URL)
+    socket.on('clock-room', function(data){
+      console.log('got clock-room');
+
+    });
 
     this.gameHeight = this.sys.game.config.width;
     this.gameWidth = this.sys.game.config.height;    

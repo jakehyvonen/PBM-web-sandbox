@@ -81,6 +81,38 @@ const keyboard_action_dict = {
 const action_dict_keys = Object.keys(keyboard_action_dict);
 const jog_dict_keys = Object.keys(keyboard_jog_dict);
 
+
+
+const tcp_server = net.createServer((socket) => {
+    console.log('Client connected:', socket.remoteAddress, socket.remotePort);
+  
+    socket.on('data', (data) => {
+      const message = data.toString().trim();
+      console.log('Received message:', message);
+  
+      // Process the received message as needed
+      // ...
+  
+      // Send a response back to the Python client
+      const response = 'This is a response from Node.js';
+      socket.write(response);
+      socket.end()
+    });
+  
+    socket.on('end', () => {
+      console.log('Client disconnected:', socket.remoteAddress, socket.remotePort);
+    });
+  
+    socket.on('error', (error) => {
+      console.error('Socket error:', error);
+    });
+  });
+  
+const tcp_listen_port = 5676; // Port number to listen on
+tcp_server.listen(tcp_listen_port, () => {
+    console.log('TCP server listening on port', tcp_listen_port);
+});
+
 //send a message through a socket to the Python process
 const send_tcp_msg = message => {
     return new Promise((resolve, reject) => {
