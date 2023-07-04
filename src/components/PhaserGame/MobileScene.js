@@ -3,7 +3,7 @@ import Phaser from 'phaser'
 import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js';
 import openSocket from 'socket.io-client';
 import _ from 'lodash'; // Import lodash for throttling
-import DoubleClickButton from './DoubleClickButton.js';
+import ToggleButton from './ToggleButton';
 
 var socket = null;
 
@@ -15,11 +15,13 @@ export default class MobileScene extends Phaser.Scene {
     this.orientationBroadcasting = false;
     this.orientationBroadcastInterval = null;
     this.handleDeviceOrientation = this.handleDeviceOrientation.bind(this);
+    this.isGantryView = false; //true if user is viewing camera mounted on gantry
 
   } 
 
   //Phaser.Scene method
   preload() {
+    this.load.atlas('buttons', 'assets/buttons-spritesheet.png', 'assets/buttons-spritesheet.json');
     this.load.image('base', './assets/base.png');
     this.load.image('thumb', './assets/thumb.png');
     this.load.image('blueblank', './assets/blue-!blank.png');
@@ -68,15 +70,13 @@ export default class MobileScene extends Phaser.Scene {
   }
    
   create() {
-    //this.socket = io();
     this.cursorDebugTextA = this.add.text(100, 200);
-    this.cursorDebugTextB = this.add.text(100, 200);
     this.input.addPointer(1);
 
     this.joystickA= this.createVirtualJoystick(this.joystickAConfig);
     this.joysticks = [this.joystickA];
 
-    var dispenseSprite = this.add.sprite(this.gameHeight/2, this.gameWidth/9, 'silverdown');
+    var dispenseSprite = this.add.sprite(this.gameHeight/2, this.gameWidth/9, 'silver-!arrowdown');
     dispenseSprite.scale = 5;
     dispenseSprite.setAngle(90);
 
@@ -351,6 +351,7 @@ export default class MobileScene extends Phaser.Scene {
       }
       joystick.normalizedX = newX/joystick.radius;//radius = max force
       joystick.normalizedY = newY/joystick.radius;
+     
       joystick.normalizedX = (joystick.normalizedX).toPrecision(3);
       joystick.normalizedY = (joystick.normalizedY).toPrecision(3);
       // console.log('normalizedX: ' + joystick.normalizedX);
@@ -364,12 +365,15 @@ export default class MobileScene extends Phaser.Scene {
 
     if(positions.some(el => el>0 || el<0)) {
       var msg = null;
-      
+      if (this.isGantryView){//reverse directions for gantry camera
+        this.joystickA.normalizedX = this.joystickA.normalizedX * -1.0;
+        this.joystickA.normalizedY = this.joystickA.normalizedY * -1.0;
+      }
       //construct a msg if anything is nonzero
       //we only have one joystick for mobile
       msg = '0|0|';
-      msg += this.joystickA.normalizedX + '|';
       msg += this.joystickA.normalizedY + '|';
+      msg += this.joystickA.normalizedX + '|';
       msg += '0';
       console.log('msg: ' + msg);
 
