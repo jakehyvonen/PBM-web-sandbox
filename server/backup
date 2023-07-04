@@ -1,11 +1,9 @@
 const express = require("express");
 const app = express();
 const server = require("http").Server(app);
+const io = require("socket.io")(server);
 const cors = require("cors");
 const path = require("path");
-const socket = require("./socket")
-const io = socket.init(server)
-
 var converter = require('./input_converter');
 
 // add middlewares

@@ -7,6 +7,12 @@ util = require('util');
 net = require('net');
 const PBM_enums = require('./enums.json');
 const ERAS_actions = PBM_enums.ERAS_Action;
+const socket = require('./socket')
+const io = socket.getIO();
+
+io.on('connection', (socket) => {
+    console.log('ting works');
+})
 
 const jog_vectors = {
     "plus_u":[1, 0, 0.0, 0.0, 0.0],
@@ -81,30 +87,33 @@ const keyboard_action_dict = {
 const action_dict_keys = Object.keys(keyboard_action_dict);
 const jog_dict_keys = Object.keys(keyboard_jog_dict);
 
+function notify_action_finished(){
+    io.emit()
+}
 
-
-const tcp_server = net.createServer((socket) => {
-    console.log('Client connected:', socket.remoteAddress, socket.remotePort);
+const tcp_server = net.createServer((callback_socket) => {
+    console.log('Client connected:', callback_socket.remoteAddress, callback_socket.remotePort);
   
-    socket.on('data', (data) => {
+    callback_socket.on('data', (data) => {
       const message = data.toString().trim();
       console.log('Received message:', message);
-  
-      // Process the received message as needed
-      // ...
+      if (message.includes('finished')){
+        console.log('emitting to listeners via socketio');
+        io.emit('clock-room');
+      }
   
       // Send a response back to the Python client
-      const response = 'This is a response from Node.js';
-      socket.write(response);
-      socket.end()
+    //   const response = 'This is a response from Node.js';
+    //   callback_socket.write(response);
+    callback_socket.end()
     });
   
-    socket.on('end', () => {
-      console.log('Client disconnected:', socket.remoteAddress, socket.remotePort);
+    callback_socket.on('end', () => {
+      console.log('Client disconnected:', callback_socket.remoteAddress, callback_socket.remotePort);
     });
   
-    socket.on('error', (error) => {
-      console.error('Socket error:', error);
+    callback_socket.on('error', (error) => {
+      console.error('callback_socket error:', error);
     });
   });
   
