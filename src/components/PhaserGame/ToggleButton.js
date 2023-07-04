@@ -1,9 +1,12 @@
 import Phaser from 'phaser'
 
 export default class ToggleButton extends Phaser.GameObjects.Image {
-    constructor(scene, x, y, texture, frames, onClick) {
+    constructor(scene, x, y, texture, frames, onClick, scale=3, angle=90) {
         super(scene, x, y, texture, frames[0]);
         this.setInteractive();
+
+        this.setScale(scale);
+        this.setAngle(angle);
 
         // Add a property to track if the button can be clicked
         this.canClick = true;

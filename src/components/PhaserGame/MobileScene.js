@@ -21,7 +21,7 @@ export default class MobileScene extends Phaser.Scene {
 
   //Phaser.Scene method
   preload() {
-    this.load.atlas('buttons', 'assets/buttons-spritesheet.png', 'assets/buttons-spritesheet.json');
+    this.load.atlas('buttons', 'assets/buttons-spritesheet.png', 'assets/buttons.json');
     this.load.image('base', './assets/base.png');
     this.load.image('thumb', './assets/thumb.png');
     this.load.image('blueblank', './assets/blue-!blank.png');
@@ -76,7 +76,21 @@ export default class MobileScene extends Phaser.Scene {
     this.joystickA= this.createVirtualJoystick(this.joystickAConfig);
     this.joysticks = [this.joystickA];
 
-    var dispenseSprite = this.add.sprite(this.gameHeight/2, this.gameWidth/9, 'silver-!arrowdown');
+    let button1 = new ToggleButton(
+      this, 
+      this.gameHeight/2, 
+      this.gameWidth/2, 
+      'buttons', 
+      ['blue-0', 'blue-1'], 
+      function(frameName) {
+          console.log('Button 1 was toggled to frame', frameName);
+          // Do something unique for button 1
+      }
+    );
+    this.add.existing(button1);
+  
+    
+    var dispenseSprite = this.add.sprite(this.gameHeight/2, this.gameWidth/9, 'buttons', 'silver-!arrowdown');
     dispenseSprite.scale = 5;
     dispenseSprite.setAngle(90);
 
