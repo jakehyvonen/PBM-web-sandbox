@@ -61,7 +61,7 @@ export default class MobileScene extends Phaser.Scene {
     socket.on('finished', function(){
       console.log('we finnished');
       this.isBusy = false;
-      this.setAllSwappersActive;
+      this.setAllSwappersActive();
     });
     this.cursorDebugTextA = this.add.text(100, 200);
     this.input.addPointer(1);
@@ -259,7 +259,7 @@ export default class MobileScene extends Phaser.Scene {
         socket.emit('ERAS_action',message);
         this.activeSyringeId = syringeId;
         this.updateSwapButtonFrames();
-        this.setAllSwappersInactive;
+        this.setAllSwappersInactive();
       }
     };
 
