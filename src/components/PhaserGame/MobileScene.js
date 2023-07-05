@@ -58,7 +58,7 @@ export default class MobileScene extends Phaser.Scene {
     });
 
     this.isBusy = false;
-    socket.on('finished', function(){
+    socket.on('finished', ()=>{
       console.log('we finnished');
       this.isBusy = false;
       this.setAllSwappersActive();
