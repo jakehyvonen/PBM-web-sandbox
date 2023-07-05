@@ -300,3 +300,4 @@ exports.handle_keyboard_data = handle_keyboard_data;
 exports.handle_action_keydown = handle_action_keydown;
 exports.handle_joystick_data = handle_joystick_data;
 exports.handle_device_orientation_data = handle_device_orientation_data;
+exports.handle_ERAS_action = handle_ERAS_action;

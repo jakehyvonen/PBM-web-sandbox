@@ -4,9 +4,11 @@ import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-p
 import openSocket from 'socket.io-client';
 import _ from 'lodash'; // Import lodash for throttling
 import ToggleButton from './ToggleButton';
+import SwapButton from './SwapButton';
 
-const PBM_enums = require('./enums.json');
+const PBM_enums = require('../../enums.json');
 const ERAS_actions = PBM_enums.ERAS_Action;
+
 var socket = null;
 
 export default class MobileScene extends Phaser.Scene {
@@ -31,8 +33,16 @@ export default class MobileScene extends Phaser.Scene {
 
   init() {
     socket = openSocket(process.env.REACT_APP_NGROK_URL);   
+    this.activeSyringeId = null;
     socket.on('syringe', function(data){
       console.log('got syringe data: ' + data);
+      this.activeSyringeId = data;
+    });
+
+    this.isBusy = false;
+    socket.on('finished', function(){
+      console.log('we finnished');
+      this.isBusy = false;
     });
 
     this.gameHeight = this.sys.game.config.width;
@@ -193,25 +203,45 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(centerButton);
     //#endregion
 
-    let button0 = new ToggleButton(
+    this.swapSyringe = function(syringeId){
+      if(!this.isBusy){
+        if(this.isDispensing){
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Dispense);
+        }
+        this.isBusy = true;
+        var message = ERAS_actions.Swap_Syringe + ',' + syringeId;
+        socket.emit('ERAS_action',message);
+        this.activeSyringeId = syringeId;
+      }
+    };
+
+    this.updateSwapButtonFrames = function(){
+
+    };
+
+
+    let swapButton0 = new SwapButton(
       this, this.gameHeight*5/6, this.gameWidth*2.8/3,
-      'buttons', []
+      'buttons', ['blue-0','blue-0-pushed'], 0,
+      (btnNum) => {
+        this.swapSyringe(btnNum);
+      },
     );
-    this.add.existing(button0);
+    this.add.existing(swapButton0);
 
-    var button0sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.8/3, 'blue0');
-    button0sprite.scale = 3;
-    button0sprite.setAngle(90);
+    // var button0sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.8/3, 'blue0');
+    // button0sprite.scale = 3;
+    // button0sprite.setAngle(90);
 
-    this.button0 = new Button(button0sprite);
-    this.button0.on('click', function()
-    {
-      console.log('clicky0');      
-        //just hardcoding output for now
-        // TODO find some way to share commands as a base class between mobile and desktop
-        socket.emit('action_keydown','0');
+    // this.button0 = new Button(button0sprite);
+    // this.button0.on('click', function()
+    // {
+    //   console.log('clicky0');      
+    //     //just hardcoding output for now
+    //     // TODO find some way to share commands as a base class between mobile and desktop
+    //     socket.emit('action_keydown','0');
       
-    })
+    // })
 
     var button1sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.5/3, 'blue1');
     button1sprite.scale = 3;
