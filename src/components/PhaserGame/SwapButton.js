@@ -9,6 +9,8 @@ class SwapButton extends Phaser.GameObjects.Container {
         this.sprite = new Phaser.GameObjects.Sprite(scene, 0, 0, atlas, frameNames[0]);
         this.sprite.setScale(scale);
         this.sprite.setAngle(angle);
+        
+        this.frameNames = frameNames;
 
         // Command and Button Number
         this.command = command;
@@ -24,6 +26,7 @@ class SwapButton extends Phaser.GameObjects.Container {
         this.sprite.setInteractive({ useHandCursor: true });
         this.sprite.on('pointerdown', () => {
             if (this.active) {
+                this.sprite.setFrame(this.frameNames[1]);//pushed
                 if (onClick) onClick(this.btnNum);
             }
         });
@@ -32,10 +35,6 @@ class SwapButton extends Phaser.GameObjects.Container {
         this.setSize(this.sprite.width, this.sprite.height);
     }
 
-    setActive(active) {
-        this.active = active;
-        this.sprite.setFrame(this.active ? 1 : 0); // Use different frame when active
-    }
 }
 
 export default SwapButton;

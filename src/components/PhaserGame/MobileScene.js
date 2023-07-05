@@ -34,16 +34,7 @@ export default class MobileScene extends Phaser.Scene {
   init() {
     socket = openSocket(process.env.REACT_APP_NGROK_URL);   
     this.activeSyringeId = null;
-    socket.on('syringe', function(data){
-      console.log('got syringe data: ' + data);
-      this.activeSyringeId = data;
-    });
-
-    this.isBusy = false;
-    socket.on('finished', function(){
-      console.log('we finnished');
-      this.isBusy = false;
-    });
+    
 
     this.gameHeight = this.sys.game.config.width;
     this.gameWidth = this.sys.game.config.height;    
@@ -60,6 +51,17 @@ export default class MobileScene extends Phaser.Scene {
   }
    
   create() {
+    socket.on('syringe', (data) => {
+      console.log('got syringe data: ' + data);
+      this.activeSyringeId = data;
+      this.updateSwapButtonFrames();
+    });
+
+    this.isBusy = false;
+    socket.on('finished', function(){
+      console.log('we finnished');
+      this.isBusy = false;
+    });
     this.cursorDebugTextA = this.add.text(100, 200);
     this.input.addPointer(1);
 
@@ -204,7 +206,7 @@ export default class MobileScene extends Phaser.Scene {
     //#endregion
 
     this.swapSyringe = function(syringeId){
-      if(!this.isBusy){
+      if(!this.isBusy && this.activeSyringeId != syringeId){
         if(this.isDispensing){
           socket.emit('ERAS_action', ERAS_actions.Toggle_Dispense);
         }
@@ -213,10 +215,6 @@ export default class MobileScene extends Phaser.Scene {
         socket.emit('ERAS_action',message);
         this.activeSyringeId = syringeId;
       }
-    };
-
-    this.updateSwapButtonFrames = function(){
-
     };
 
 
@@ -229,33 +227,29 @@ export default class MobileScene extends Phaser.Scene {
     );
     this.add.existing(swapButton0);
 
-    // var button0sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.8/3, 'blue0');
-    // button0sprite.scale = 3;
-    // button0sprite.setAngle(90);
+    let swapButton1 = new SwapButton(
+      this, this.gameHeight*5/6, this.gameWidth*2.5/3,
+      'buttons', ['blue-1','blue-1-pushed'], 1,
+      (btnNum) => {
+        this.swapSyringe(btnNum);
+      },
+    );
+    this.add.existing(swapButton1);
 
-    // this.button0 = new Button(button0sprite);
-    // this.button0.on('click', function()
-    // {
-    //   console.log('clicky0');      
-    //     //just hardcoding output for now
-    //     // TODO find some way to share commands as a base class between mobile and desktop
-    //     socket.emit('action_keydown','0');
-      
-    // })
+    this.swapButtons = [swapButton0, swapButton1];
 
-    var button1sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.5/3, 'blue1');
-    button1sprite.scale = 3;
-    button1sprite.setAngle(90);
-
-    this.button1 = new Button(button1sprite);
-    this.button1.on('click', function()
-    {
-      console.log('clicky1');      
-      socket.emit('action_keydown','1');
-        
-      
-    })
-
+    this.updateSwapButtonFrames = ()=>{
+      this.swapButtons.forEach((swapButton)=>{
+        console.log('sane');
+        if (swapButton.btnNum == this.activeSyringeId) {
+          swapButton.sprite.setFrame(swapButton.frameNames[1]);
+          console.log('btn ' + swapButton.btnNum + 'active');
+        }
+        else {
+          swapButton.sprite.setFrame(swapButton.frameNames[0]);
+        }
+      })
+    };
 
     var button2sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.2/3, 'blue2');
     button2sprite.scale = 3;
