@@ -12,6 +12,7 @@ export default class MobileScene extends Phaser.Scene {
     super('mobile')
     this.didBroadcastJSNeutral = false;
     this.deviceOrientation = { alpha: 0, beta: 0, gamma: 0 };
+    this.lastDeviceOrientation = {alpha: 0, beta: 0, gamma: 0};
     this.orientationBroadcasting = false;
     this.orientationBroadcastInterval = null;
     this.handleDeviceOrientation = this.handleDeviceOrientation.bind(this);
@@ -24,28 +25,6 @@ export default class MobileScene extends Phaser.Scene {
     this.load.atlas('buttons', 'assets/buttons-spritesheet.png', 'assets/buttons.json');
     this.load.image('base', './assets/base.png');
     this.load.image('thumb', './assets/thumb.png');
-    this.load.image('blueblank', './assets/blue-!blank.png');
-    this.load.image('blue0', './assets/blue-0.png');
-    this.load.image('blue0push', './assets/blue-0-pushed.png');
-    this.load.image('blue1', './assets/blue-1.png');
-    this.load.image('blue1push', './assets/blue-1-pushed.png');
-    this.load.image('blue2', './assets/blue-2.png');
-    this.load.image('blue2push', './assets/blue-2-pushed.png');
-    this.load.image('blue3', './assets/blue-3.png');
-    this.load.image('greentriangle', './assets/green-!triangle.png');
-    this.load.image('blue3push', './assets/blue-3-pushed.png');
-    this.load.image('silverblank', './assets/silver-!blank.png');
-    this.load.image('silverC', './assets/silver-C.png');
-    this.load.image('silverT', './assets/silver-T.png');
-    this.load.image('silverTpush', './assets/silver-T-pushed.png');
-    this.load.image('silverdown', './assets/silver-!arrowdown.png');
-    this.load.image('silverdownpush', './assets/silver-!arrowdown-pushed.png');
-    this.load.image('silverleft', './assets/silver-!arrowleft.png');
-    this.load.image('silverleftpush', './assets/silver-!arrowleft-pushed.png');
-    this.load.image('silverright', './assets/silver-!arrowright.png');
-    this.load.image('silverrightpush', './assets/silver-!arrowright-pushed.png');
-    this.load.image('redr', './assets/red-R.png');
-    this.load.image('redrpush', './assets/red-R-pushed.png');
     this.load.plugin('rex-virtual-joystick-plugin"', VirtualJoystickPlugin, true);   
 		// sprites, note: see free sprite atlas creation tool here https://www.leshylabs.com/apps/sstool/
   
@@ -79,7 +58,29 @@ export default class MobileScene extends Phaser.Scene {
 
     this.joystickA= this.createVirtualJoystick(this.joystickAConfig);
     this.joysticks = [this.joystickA];
-  
+
+    if (window.DeviceOrientationEvent) {
+      console.log('Device Orientation is supported');
+    
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        // iOS 13+ requires permission to access device orientation
+        DeviceOrientationEvent.requestPermission()
+          .then(permissionState => {
+            if (permissionState === 'granted') {
+              window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
+            } else {
+              console.log('Device orientation permission not granted');
+            }
+          })
+          .catch(console.error);
+      } else {
+        // non iOS 13+
+        window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
+      }
+    } else {
+      console.log('Device orientation is not supported');
+    }
+    //#region ToggleButtons
     let dispenseButton = new ToggleButton(
       this,
       this.gameHeight/2, this.gameWidth/9,
@@ -160,98 +161,59 @@ export default class MobileScene extends Phaser.Scene {
     );
     this.add.existing(rotateCCWButton);
 
-    // var rotateCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.7/3, 'silverright');
-    // rotateCWSprite.scale = 4;
-    // rotateCWSprite.setAngle(90);
-
-    // var rotateCCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.3/3, 'silverleft');
-    // rotateCCWSprite.scale = 4;
-    // rotateCCWSprite.setAngle(90);
-    
-    // this.updateRotateButtonStates = function() {
-    //   if (this.isRotatingCW) {
-    //     rotateCWSprite.setTexture('silverrightpush');
-    //     rotateCCWSprite.setTexture('silverleft');
-    //   } else if (this.isRotatingCCW) {
-    //     rotateCWSprite.setTexture('silverright');
-    //     rotateCCWSprite.setTexture('silverleftpush');
-    //   } else {
-    //     rotateCWSprite.setTexture('silverright');
-    //     rotateCCWSprite.setTexture('silverleft');
-    //   }
-    // };
-    
-    // this.rotateCWButton = new Button(rotateCWSprite);
-    // this.rotateCWButton.on('click', function() {
-    //   console.log('clicked rotate CW');
-    //   if(this.isRotatingCW){
-    //     this.isRotatingCW = false;
-    //     socket.emit('action_keydown','E');
-    //   } else if(this.isRotatingCCW){
-    //     this.isRotatingCW = true;
-    //     this.isRotatingCCW = false;
-    //     socket.emit('action_keydown','E');
-    //   } else {
-    //     this.isRotatingCW = true;
-    //     socket.emit('action_keydown','E');
-    //   }
-    //   this.updateRotateButtonStates();
-    // }.bind(this));
-    
-    // this.rotateCCWButton = new Button(rotateCCWSprite);
-    // this.rotateCCWButton.on('click', function() {
-    //   console.log('clicked rotate CCW');
-    //   if(this.isRotatingCCW){
-    //     this.isRotatingCCW = false;
-    //     socket.emit('action_keydown','Q');
-    //   } else if(this.isRotatingCW){
-    //     this.isRotatingCCW = true;
-    //     this.isRotatingCW = false;
-    //     socket.emit('action_keydown','Q');
-    //   } else {
-    //     this.isRotatingCCW = true;
-    //     socket.emit('action_keydown','Q');
-    //   }
-    //   this.updateRotateButtonStates();
-    // }.bind(this));
-    
-    if (!('ondeviceorientation' in window)) {
-      // Device Orientation isn't supported!
-      console.log('device orientation is not supported');
-    }
-    else
-    {
-      console.log('device orientation is supported');
-    }
-
-    window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
-
-    var orientationButtonSprite = this.add.sprite(this.gameHeight/2, this.gameWidth*2.7/3, 'silverT');
-    orientationButtonSprite.scale = 3;
-    orientationButtonSprite.setAngle(90);
-  
-    this.orientationButton = new Button(orientationButtonSprite);
-    this.orientationButton.on('click', () =>
-    {
-      console.log('orient_clicky');
+    let orientationButton = new ToggleButton(
+      this,
+      this.gameHeight/2, this.gameWidth*2.7/3,
+      'buttons', ['silver-T', 'silver-T-pushed'],
+      (frameName) => {
+      console.log('orientationButton was toggled to frame', frameName);
       if(this.orientationBroadcasting){
-        orientationButtonSprite.setTexture('silverT')
         this.orientationBroadcasting = false;
         // Stop broadcasting orientation data
         clearInterval(this.orientationBroadcastInterval);
         this.orientationBroadcastInterval = null;
-      }
-      else{
-        orientationButtonSprite.setTexture('silverTpush')
-        this.orientationBroadcasting = true;
-        this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 50);
+        }
+        else{
+          this.orientationBroadcasting = true;
+          this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 50);
 
-      }
-    })  
+        }
+      },
+    );
+    this.add.existing(orientationButton);
+    //#endregion
+
+    let centerButton = new ToggleButton(
+      this,
+      this.gameHeight/2, this.gameWidth*5/6,
+      'buttons', ['silver-C', 'silver-C-pushed'],
+      (frameName) => {
+        console.log('orientationButton was toggled to frame', frameName);
+        if(this.orientationBroadcasting){
+          this.orientationBroadcasting = false;
+          // Stop broadcasting orientation data
+          clearInterval(this.orientationBroadcastInterval);
+          this.orientationBroadcastInterval = null;
+          orientationButton.setFrame(orientationButton.frames[0]);//un-pushed image
+        }
+        socket.emit('action_keydown','X');
+
+      },
+    );
 
     var centerButtonsprite = this.add.sprite(this.gameHeight/2, this.gameWidth*5/6, 'silverC');
     centerButtonsprite.scale = 3;
     centerButtonsprite.setAngle(90);
+
+
+    this.centerButton = new Button(centerButtonsprite);
+    this.centerButton.on('click', function()
+    {
+      console.log('clicky3');      
+      //hardcode mapped to Substrate_Neutral
+      socket.emit('action_keydown','X');
+      
+    })
 
 
     var button0sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.8/3, 'blue0');
@@ -314,14 +276,6 @@ export default class MobileScene extends Phaser.Scene {
       
     })
 
-    this.centerButton = new Button(centerButtonsprite);
-    this.centerButton.on('click', function()
-    {
-      console.log('clicky3');      
-      //hardcode mapped to Substrate_Neutral
-      socket.emit('action_keydown','X');
-      
-    })
     
     this.recordButton = new Button(recordButtonSprite);
     this.recordButton.on('click', function()
@@ -354,31 +308,6 @@ export default class MobileScene extends Phaser.Scene {
     this.updateJoystickState();
     this.broadcastInterval = setInterval(() => this.broadcastJoysticks(), 50);
 
-  }
-
-
-  handleDeviceOrientation = (event) => {
-    //console.log('event.alpha: ', event.alpha);
-    const { alpha, beta, gamma } = event;
-  
-    //alpha is phone rotation, beta and gamma are tilt axes
-    const roundedAlpha = parseFloat(alpha.toFixed(2));
-    const roundedBeta = parseFloat(beta.toFixed(2));
-    const roundedGamma = parseFloat(gamma.toFixed(2));
-    this.deviceOrientation = {
-      alpha: roundedAlpha,
-      beta: roundedBeta,
-      gamma: roundedGamma
-    }
-  }
-
-  broadcastDeviceOrientation() {
-    if (this.orientationBroadcasting) {
-      var data = this.deviceOrientation.alpha + '|';
-      data += this.deviceOrientation.beta + '|';
-      data += this.deviceOrientation.gamma;
-      socket.emit('device_orientation', data);
-    }
   }
 
   createVirtualJoystick(config) {
@@ -447,7 +376,6 @@ export default class MobileScene extends Phaser.Scene {
     }
   }
 
-
   handleDeviceOrientation = (event) => {
     //console.log('event.alpha: ', event.alpha);
     const { alpha, beta, gamma } = event;
@@ -464,10 +392,16 @@ export default class MobileScene extends Phaser.Scene {
 
   broadcastDeviceOrientation() {
     if (this.orientationBroadcasting) {
-      var data = this.deviceOrientation.alpha + '|';
-      data += this.deviceOrientation.beta + '|';
-      data += this.deviceOrientation.gamma;
-      socket.emit('device_orientation', data);
+      if(!this.areObjectsEqual(this.deviceOrientation, this.lastDeviceOrientation)){
+        var data = this.deviceOrientation.alpha + '|';
+        data += this.deviceOrientation.beta + '|';
+        data += this.deviceOrientation.gamma;
+        socket.emit('device_orientation', data);
+        this.lastDeviceOrientation = this.deviceOrientation;
+      }
+      else{
+        console.log('no change in deviceOrientation');
+      }     
     }
   }
 
@@ -497,5 +431,9 @@ export default class MobileScene extends Phaser.Scene {
   }
 
 
+  // Helper function to compare two objects
+  areObjectsEqual = (obj1, obj2) => {
+    return JSON.stringify(obj1) === JSON.stringify(obj2);
+  }
 
 }
