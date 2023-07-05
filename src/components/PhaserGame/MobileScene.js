@@ -100,62 +100,120 @@ export default class MobileScene extends Phaser.Scene {
       5,
     );
     this.add.existing(dispenseButton);
-    
 
-    var rotateCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.7/3, 'silverright');
-    rotateCWSprite.scale = 4;
-    rotateCWSprite.setAngle(90);
-
-    var rotateCCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.3/3, 'silverleft');
-    rotateCCWSprite.scale = 4;
-    rotateCCWSprite.setAngle(90);
-    
-    this.updateRotateButtonStates = function() {
+    this.updateRotateButtonFrames = function(){
       if (this.isRotatingCW) {
-        rotateCWSprite.setTexture('silverrightpush');
-        rotateCCWSprite.setTexture('silverleft');
+        rotateCWButton.setFrame(rotateCWButton.frames[1]);//right pushed
+        rotateCCWButton.setFrame(rotateCCWButton.frames[0]);//left up
       } else if (this.isRotatingCCW) {
-        rotateCWSprite.setTexture('silverright');
-        rotateCCWSprite.setTexture('silverleftpush');
+        rotateCWButton.setFrame(rotateCWButton.frames[0]);//right up
+        rotateCCWButton.setFrame(rotateCCWButton.frames[1]);//left pushed
       } else {
-        rotateCWSprite.setTexture('silverright');
-        rotateCCWSprite.setTexture('silverleft');
+        rotateCWButton.setFrame(rotateCWButton.frames[0]);//right up
+        rotateCCWButton.setFrame(rotateCCWButton.frames[0]);//left up
       }
     };
+
+    let rotateCWButton = new ToggleButton(
+      this,
+      this.gameHeight/6, this.gameWidth*2.7/3,
+      'buttons', ['silver-!arrowright', 'silver-!arrowright-pushed'],
+      (frameName) => {
+        console.log('rotateCWButton was toggled to frame', frameName);
+        if(this.isRotatingCW){
+          this.isRotatingCW = false;
+          socket.emit('action_keydown','E');
+        } else if(this.isRotatingCCW){
+          this.isRotatingCW = true;
+          this.isRotatingCCW = false;
+          socket.emit('action_keydown','E');
+        } else {
+          this.isRotatingCW = true;
+          socket.emit('action_keydown','E');
+        }
+        this.updateRotateButtonStates();
+      },
+      4,
+    );
+    this.add.existing(rotateCWButton);
     
-    this.rotateCWButton = new Button(rotateCWSprite);
-    this.rotateCWButton.on('click', function() {
-      console.log('clicked rotate CW');
-      if(this.isRotatingCW){
-        this.isRotatingCW = false;
-        socket.emit('action_keydown','E');
-      } else if(this.isRotatingCCW){
-        this.isRotatingCW = true;
-        this.isRotatingCCW = false;
-        socket.emit('action_keydown','E');
-      } else {
-        this.isRotatingCW = true;
-        socket.emit('action_keydown','E');
-      }
-      this.updateRotateButtonStates();
-    }.bind(this));
+    let rotateCCWButton = new ToggleButton(
+      this,
+      this.gameHeight/6, this.gameWidth*2.3/3,
+      'buttons', ['silver-!arrowleft', 'silver-!arrowleft-pushed'],
+      (frameName) => {
+        console.log('rotateCCWButton was toggled to frame', frameName);
+        if(this.isRotatingCCW){
+          this.isRotatingCCW = false;
+          socket.emit('action_keydown','Q');
+        } else if(this.isRotatingCW){
+          this.isRotatingCCW = true;
+          this.isRotatingCW = false;
+          socket.emit('action_keydown','Q');
+        } else {
+          this.isRotatingCCW = true;
+          socket.emit('action_keydown','Q');
+        }
+        this.updateRotateButtonStates();
+      },
+      4,
+    );
+    this.add.existing(rotateCCWButton);
+
+    // var rotateCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.7/3, 'silverright');
+    // rotateCWSprite.scale = 4;
+    // rotateCWSprite.setAngle(90);
+
+    // var rotateCCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.3/3, 'silverleft');
+    // rotateCCWSprite.scale = 4;
+    // rotateCCWSprite.setAngle(90);
     
-    this.rotateCCWButton = new Button(rotateCCWSprite);
-    this.rotateCCWButton.on('click', function() {
-      console.log('clicked rotate CCW');
-      if(this.isRotatingCCW){
-        this.isRotatingCCW = false;
-        socket.emit('action_keydown','Q');
-      } else if(this.isRotatingCW){
-        this.isRotatingCCW = true;
-        this.isRotatingCW = false;
-        socket.emit('action_keydown','Q');
-      } else {
-        this.isRotatingCCW = true;
-        socket.emit('action_keydown','Q');
-      }
-      this.updateRotateButtonStates();
-    }.bind(this));
+    // this.updateRotateButtonStates = function() {
+    //   if (this.isRotatingCW) {
+    //     rotateCWSprite.setTexture('silverrightpush');
+    //     rotateCCWSprite.setTexture('silverleft');
+    //   } else if (this.isRotatingCCW) {
+    //     rotateCWSprite.setTexture('silverright');
+    //     rotateCCWSprite.setTexture('silverleftpush');
+    //   } else {
+    //     rotateCWSprite.setTexture('silverright');
+    //     rotateCCWSprite.setTexture('silverleft');
+    //   }
+    // };
+    
+    // this.rotateCWButton = new Button(rotateCWSprite);
+    // this.rotateCWButton.on('click', function() {
+    //   console.log('clicked rotate CW');
+    //   if(this.isRotatingCW){
+    //     this.isRotatingCW = false;
+    //     socket.emit('action_keydown','E');
+    //   } else if(this.isRotatingCCW){
+    //     this.isRotatingCW = true;
+    //     this.isRotatingCCW = false;
+    //     socket.emit('action_keydown','E');
+    //   } else {
+    //     this.isRotatingCW = true;
+    //     socket.emit('action_keydown','E');
+    //   }
+    //   this.updateRotateButtonStates();
+    // }.bind(this));
+    
+    // this.rotateCCWButton = new Button(rotateCCWSprite);
+    // this.rotateCCWButton.on('click', function() {
+    //   console.log('clicked rotate CCW');
+    //   if(this.isRotatingCCW){
+    //     this.isRotatingCCW = false;
+    //     socket.emit('action_keydown','Q');
+    //   } else if(this.isRotatingCW){
+    //     this.isRotatingCCW = true;
+    //     this.isRotatingCW = false;
+    //     socket.emit('action_keydown','Q');
+    //   } else {
+    //     this.isRotatingCCW = true;
+    //     socket.emit('action_keydown','Q');
+    //   }
+    //   this.updateRotateButtonStates();
+    // }.bind(this));
     
     if (!('ondeviceorientation' in window)) {
       // Device Orientation isn't supported!

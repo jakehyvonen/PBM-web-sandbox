@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 
 export default class ToggleButton extends Phaser.GameObjects.Image {
-    constructor(scene, x, y, texture, frames, onClick, scale=3, angle=90) {
+    constructor(scene, x, y, texture, frames, onClick, scale=3, angle=90, delay=1000) {
         super(scene, x, y, texture, frames[0]);
         this.setInteractive();
 
@@ -33,8 +33,8 @@ export default class ToggleButton extends Phaser.GameObjects.Image {
             // Call the provided callback function
             if (onClick) onClick(this.frames[this.currentFrameIndex]);
 
-            // Use Phaser's time events to re-enable the button after 500ms
-            this.scene.time.delayedCall(500, function() {
+            // Use Phaser's time events to re-enable the button after delay in ms
+            this.scene.time.delayedCall(delay, function() {
                 this.canClick = true;
             }, [], this);
         });
