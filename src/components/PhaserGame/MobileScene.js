@@ -5,6 +5,9 @@ import openSocket from 'socket.io-client';
 import _ from 'lodash'; // Import lodash for throttling
 import ToggleButton from './ToggleButton';
 
+const PBM_Enums = require('../../../server/enums.json');
+const ERAS_actions = PBM_enums.ERAS_Action;
+
 var socket = null;
 
 export default class MobileScene extends Phaser.Scene {
@@ -17,25 +20,20 @@ export default class MobileScene extends Phaser.Scene {
     this.orientationBroadcastInterval = null;
     this.handleDeviceOrientation = this.handleDeviceOrientation.bind(this);
     this.isGantryView = false; //true if user is viewing camera mounted on gantry
-
   } 
 
-  //Phaser.Scene method
   preload() {
     this.load.atlas('buttons', 'assets/buttons-spritesheet.png', 'assets/buttons.json');
     this.load.image('base', './assets/base.png');
     this.load.image('thumb', './assets/thumb.png');
     this.load.plugin('rex-virtual-joystick-plugin"', VirtualJoystickPlugin, true);   
 		// sprites, note: see free sprite atlas creation tool here https://www.leshylabs.com/apps/sstool/
-  
   }
 
   init() {
-   
-    socket = openSocket(process.env.REACT_APP_NGROK_URL)
-    socket.on('clock-room', function(data){
-      console.log('got clock-room');
-
+    socket = openSocket(process.env.REACT_APP_NGROK_URL);   
+    socket.on('syringe', function(data){
+      console.log('got syringe data: ' + data);
     });
 
     this.gameHeight = this.sys.game.config.width;
@@ -82,15 +80,14 @@ export default class MobileScene extends Phaser.Scene {
     }
     //#region ToggleButtons
     let dispenseButton = new ToggleButton(
-      this,
-      this.gameHeight/2, this.gameWidth/9,
+      this, this.gameHeight/2, this.gameWidth/9,
       'buttons',
       ['silver-!arrowdown', 'silver-!arrowdown-pushed'],
       (frameName) => {
         console.log('dispenseButton was toggled to frame', frameName);
         if(this.isDispensing){
           this.isDispensing = false;
-          socket.emit('action_keydown','SPACE');
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Dispense);
   
         }
         else{
@@ -116,8 +113,7 @@ export default class MobileScene extends Phaser.Scene {
     };
 
     let rotateCWButton = new ToggleButton(
-      this,
-      this.gameHeight/6, this.gameWidth*2.7/3,
+      this, this.gameHeight/6, this.gameWidth*2.7/3,
       'buttons', ['silver-!arrowright', 'silver-!arrowright-pushed'],
       (frameName) => {
         console.log('rotateCWButton was toggled to frame', frameName);
@@ -139,8 +135,7 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(rotateCWButton);
     
     let rotateCCWButton = new ToggleButton(
-      this,
-      this.gameHeight/6, this.gameWidth*2.3/3,
+      this, this.gameHeight/6, this.gameWidth*2.3/3,
       'buttons', ['silver-!arrowleft', 'silver-!arrowleft-pushed'],
       (frameName) => {
         console.log('rotateCCWButton was toggled to frame', frameName);
@@ -162,8 +157,7 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(rotateCCWButton);
 
     let orientationButton = new ToggleButton(
-      this,
-      this.gameHeight/2, this.gameWidth*2.7/3,
+      this, this.gameHeight/2, this.gameWidth*2.7/3,
       'buttons', ['silver-T', 'silver-T-pushed'],
       (frameName) => {
       console.log('orientationButton was toggled to frame', frameName);
@@ -181,12 +175,10 @@ export default class MobileScene extends Phaser.Scene {
       },
     );
     this.add.existing(orientationButton);
-    //#endregion
 
     let centerButton = new ToggleButton(
-      this,
-      this.gameHeight/2, this.gameWidth*5/6,
-      'buttons', ['silver-C', 'silver-C-pushed'],
+      this, this.gameHeight/2, this.gameWidth*5/6,
+      'buttons', ['silver-C'],
       (frameName) => {
         console.log('orientationButton was toggled to frame', frameName);
         if(this.orientationBroadcasting){
@@ -196,49 +188,21 @@ export default class MobileScene extends Phaser.Scene {
           this.orientationBroadcastInterval = null;
           orientationButton.setFrame(orientationButton.frames[0]);//un-pushed image
         }
-        socket.emit('action_keydown','X');
-
+        socket.emit('action_keydown','X');//hardcoded center
       },
     );
+    this.add.existing(centerButton);
+    //#endregion
 
-    var centerButtonsprite = this.add.sprite(this.gameHeight/2, this.gameWidth*5/6, 'silverC');
-    centerButtonsprite.scale = 3;
-    centerButtonsprite.setAngle(90);
-
-
-    this.centerButton = new Button(centerButtonsprite);
-    this.centerButton.on('click', function()
-    {
-      console.log('clicky3');      
-      //hardcode mapped to Substrate_Neutral
-      socket.emit('action_keydown','X');
-      
-    })
-
+    let button0 = new ToggleButton(
+      this, this.gameHeight*5/6, this.gameWidth*2.8/3,
+      'buttons', []
+    );
+    this.add.existing(button0);
 
     var button0sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.8/3, 'blue0');
     button0sprite.scale = 3;
     button0sprite.setAngle(90);
-    var button1sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.5/3, 'blue1');
-    button1sprite.scale = 3;
-    button1sprite.setAngle(90);
-
-    var button2sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.2/3, 'blue2');
-    button2sprite.scale = 3;
-    button2sprite.setAngle(90);
-
-    var button3sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*1.9/3, 'blue3');
-    button3sprite.scale = 3;
-    button3sprite.setAngle(90);
-
-    var recordButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/9, 'redr');
-    recordButtonSprite.scale = 5;
-    recordButtonSprite.setAngle(90);
-
-    var replayButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/3, 'greentriangle');
-    replayButtonSprite.scale = 3;
-    replayButtonSprite.setAngle(90);
-
 
     this.button0 = new Button(button0sprite);
     this.button0.on('click', function()
@@ -250,6 +214,10 @@ export default class MobileScene extends Phaser.Scene {
       
     })
 
+    var button1sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.5/3, 'blue1');
+    button1sprite.scale = 3;
+    button1sprite.setAngle(90);
+
     this.button1 = new Button(button1sprite);
     this.button1.on('click', function()
     {
@@ -259,6 +227,11 @@ export default class MobileScene extends Phaser.Scene {
       
     })
 
+
+    var button2sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.2/3, 'blue2');
+    button2sprite.scale = 3;
+    button2sprite.setAngle(90);
+
     this.button2 = new Button(button2sprite);
     this.button2.on('click', function()
     {
@@ -266,6 +239,10 @@ export default class MobileScene extends Phaser.Scene {
       socket.emit('action_keydown','2');
       
     })
+
+    var button3sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*1.9/3, 'blue3');
+    button3sprite.scale = 3;
+    button3sprite.setAngle(90);
 
     this.button3 = new Button(button3sprite);
     this.button3.on('click', function()
@@ -276,7 +253,16 @@ export default class MobileScene extends Phaser.Scene {
       
     })
 
+
     
+    var recordButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/9, 'redr');
+    recordButtonSprite.scale = 5;
+    recordButtonSprite.setAngle(90);
+
+    var replayButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/3, 'greentriangle');
+    replayButtonSprite.scale = 3;
+    replayButtonSprite.setAngle(90);
+
     this.recordButton = new Button(recordButtonSprite);
     this.recordButton.on('click', function()
     {

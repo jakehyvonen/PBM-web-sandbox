@@ -49,6 +49,11 @@ io.on('connection',(socket)=>{
     console.log('got action_keydown: ' + action_data);
     converter.handle_action_keydown(action_data);
   });
+  socket.on('ERAS_action', function (action_data)
+  {
+    console.log('got ERAS_action: ' + action_data);
+    converter.handle_ERAS_action(action_data);
+  });
   socket.on('keyboard_input', function (keyboard_data)
   {
     console.log('got keyboard_data: ' + keyboard_data);
@@ -59,6 +64,7 @@ io.on('connection',(socket)=>{
     console.log('got joystick_data: ' + joystick_data);
     converter.handle_joystick_data(joystick_data);
   });
+
   
   socket.on('device_orientation', function(device_orientation_data)
   {

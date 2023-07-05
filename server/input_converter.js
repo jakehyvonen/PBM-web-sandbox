@@ -96,6 +96,11 @@ const tcp_server = net.createServer((callback_socket) => {
         console.log('emitting to listeners via socketio');
         io.emit('clock-room');
       }
+      if (message.includes('syringe')){
+        let parts = message.split(":"); // split the string by ':'
+        let number = parseInt(parts[1].trim(), 10); // parse the second part to an integer
+        io.emit('syringe', number);
+      }
   
       // Send a response back to the Python client
     //   const response = 'This is a response from Node.js';
@@ -144,6 +149,12 @@ function handle_joystick_data(joystick_data)
     console.log('sending command from joystick: ' + command);
     send_tcp_msg(command);
 
+}
+
+function handle_ERAS_action(action_data)
+{
+    console.log('sending direct ERAS_Action: ' + action_data);
+    send_tcp_msg(action_data);
 }
 
 function handle_device_orientation_data(deviceOrientationData)
