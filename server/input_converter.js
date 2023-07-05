@@ -94,7 +94,7 @@ const tcp_server = net.createServer((callback_socket) => {
       console.log('Received message:', message);
       if (message.includes('finished')){
         console.log('emitting to listeners via socketio');
-        io.emit('clock-room');
+        io.emit('finished');
       }
       if (message.includes('syringe')){
         let parts = message.split(":"); // split the string by ':'

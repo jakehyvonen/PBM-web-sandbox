@@ -61,6 +61,7 @@ export default class MobileScene extends Phaser.Scene {
     socket.on('finished', function(){
       console.log('we finnished');
       this.isBusy = false;
+      this.setAllSwappersActive;
     });
     this.cursorDebugTextA = this.add.text(100, 200);
     this.input.addPointer(1);
@@ -205,19 +206,9 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(centerButton);
     //#endregion
 
-    this.swapSyringe = function(syringeId){
-      if(!this.isBusy && this.activeSyringeId != syringeId){
-        if(this.isDispensing){
-          socket.emit('ERAS_action', ERAS_actions.Toggle_Dispense);
-        }
-        this.isBusy = true;
-        var message = ERAS_actions.Swap_Syringe + ',' + syringeId;
-        socket.emit('ERAS_action',message);
-        this.activeSyringeId = syringeId;
-      }
-    };
 
-
+    //#region SwapButtons
+    
     let swapButton0 = new SwapButton(
       this, this.gameHeight*5/6, this.gameWidth*2.8/3,
       'buttons', ['blue-0','blue-0-pushed'], 0,
@@ -236,7 +227,41 @@ export default class MobileScene extends Phaser.Scene {
     );
     this.add.existing(swapButton1);
 
-    this.swapButtons = [swapButton0, swapButton1];
+    let swapButton2 = new SwapButton(
+      this, this.gameHeight*5/6, this.gameWidth*2.2/3,
+      'buttons', ['blue-2','blue-2-pushed'], 2,
+      (btnNum) => {
+        this.swapSyringe(btnNum);
+      },
+    );
+    this.add.existing(swapButton2);
+
+    let swapButton3 = new SwapButton(
+      this, this.gameHeight*5/6, this.gameWidth*1.9/3,
+      'buttons', ['blue-3','blue-3-pushed'], 3,
+      (btnNum) => {
+        this.swapSyringe(btnNum);
+      },
+    );
+    this.add.existing(swapButton3);
+
+    //#endregion
+
+    this.swapButtons = [swapButton0, swapButton1, swapButton2, swapButton3];
+
+    this.swapSyringe = function(syringeId){
+      if(!this.isBusy && this.activeSyringeId != syringeId){
+        if(this.isDispensing){
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Dispense);
+        }
+        this.isBusy = true;
+        var message = ERAS_actions.Swap_Syringe + ',' + syringeId;
+        socket.emit('ERAS_action',message);
+        this.activeSyringeId = syringeId;
+        this.updateSwapButtonFrames();
+        this.setAllSwappersInactive;
+      }
+    };
 
     this.updateSwapButtonFrames = ()=>{
       this.swapButtons.forEach((swapButton)=>{
@@ -251,31 +276,17 @@ export default class MobileScene extends Phaser.Scene {
       })
     };
 
-    var button2sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*2.2/3, 'blue2');
-    button2sprite.scale = 3;
-    button2sprite.setAngle(90);
+    this.setAllSwappersActive = ()=>{
+      this.swapButtons.forEach((swapButton)=>{
+        swapButton.active = true
+      })
+    };
 
-    this.button2 = new Button(button2sprite);
-    this.button2.on('click', function()
-    {
-      console.log('clicky2');      
-      socket.emit('action_keydown','2');
-      
-    })
-
-    var button3sprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth*1.9/3, 'blue3');
-    button3sprite.scale = 3;
-    button3sprite.setAngle(90);
-
-    this.button3 = new Button(button3sprite);
-    this.button3.on('click', function()
-    {
-      console.log('clicky3');      
-      //hardcode mapped to Unload_Syringe
-      socket.emit('action_keydown','3');
-      
-    })
-
+    this.setAllSwappersInactive = ()=>{
+      this.swapButtons.forEach((swapButton)=>{
+        swapButton.active = false
+      })
+    };
 
     
     var recordButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/9, 'redr');
