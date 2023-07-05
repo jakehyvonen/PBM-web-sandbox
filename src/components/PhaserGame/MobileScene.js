@@ -5,9 +5,8 @@ import openSocket from 'socket.io-client';
 import _ from 'lodash'; // Import lodash for throttling
 import ToggleButton from './ToggleButton';
 
-const PBM_Enums = require('../../../server/enums.json');
+const PBM_enums = require('./enums.json');
 const ERAS_actions = PBM_enums.ERAS_Action;
-
 var socket = null;
 
 export default class MobileScene extends Phaser.Scene {
@@ -92,7 +91,7 @@ export default class MobileScene extends Phaser.Scene {
         }
         else{
           this.isDispensing = true;
-          socket.emit('action_keydown','SPACE');
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Dispense);
         }
       },
       5,
@@ -119,14 +118,14 @@ export default class MobileScene extends Phaser.Scene {
         console.log('rotateCWButton was toggled to frame', frameName);
         if(this.isRotatingCW){
           this.isRotatingCW = false;
-          socket.emit('action_keydown','E');
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Rotation_CW);
         } else if(this.isRotatingCCW){
           this.isRotatingCW = true;
           this.isRotatingCCW = false;
-          socket.emit('action_keydown','E');
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Rotation_CW);
         } else {
           this.isRotatingCW = true;
-          socket.emit('action_keydown','E');
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Rotation_CW);
         }
         this.updateRotateButtonFrames();
       },
@@ -141,14 +140,14 @@ export default class MobileScene extends Phaser.Scene {
         console.log('rotateCCWButton was toggled to frame', frameName);
         if(this.isRotatingCCW){
           this.isRotatingCCW = false;
-          socket.emit('action_keydown','Q');
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Rotation_CCW);
         } else if(this.isRotatingCW){
           this.isRotatingCCW = true;
           this.isRotatingCW = false;
-          socket.emit('action_keydown','Q');
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Rotation_CCW);
         } else {
           this.isRotatingCCW = true;
-          socket.emit('action_keydown','Q');
+          socket.emit('ERAS_action', ERAS_actions.Toggle_Rotation_CCW);
         }
         this.updateRotateButtonFrames();
       },
@@ -188,7 +187,7 @@ export default class MobileScene extends Phaser.Scene {
           this.orientationBroadcastInterval = null;
           orientationButton.setFrame(orientationButton.frames[0]);//un-pushed image
         }
-        socket.emit('action_keydown','X');//hardcoded center
+        socket.emit('ERAS_action', ERAS_actions.Substrate_Neutral);
       },
     );
     this.add.existing(centerButton);
