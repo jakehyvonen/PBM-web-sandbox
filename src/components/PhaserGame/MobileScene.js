@@ -131,7 +131,7 @@ export default class MobileScene extends Phaser.Scene {
           this.isRotatingCW = true;
           socket.emit('action_keydown','E');
         }
-        this.updateRotateButtonStates();
+        this.updateRotateButtonFrames();
       },
       4,
     );
@@ -154,7 +154,7 @@ export default class MobileScene extends Phaser.Scene {
           this.isRotatingCCW = true;
           socket.emit('action_keydown','Q');
         }
-        this.updateRotateButtonStates();
+        this.updateRotateButtonFrames();
       },
       4,
     );
