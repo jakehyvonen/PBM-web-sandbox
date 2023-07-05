@@ -79,41 +79,28 @@ export default class MobileScene extends Phaser.Scene {
 
     this.joystickA= this.createVirtualJoystick(this.joystickAConfig);
     this.joysticks = [this.joystickA];
-
-    let button1 = new ToggleButton(
-      this, 
-      this.gameHeight/2, 
-      this.gameWidth/2, 
-      'buttons', 
-      ['blue-0', 'blue-1'], 
-      function(frameName) {
-          console.log('Button 1 was toggled to frame', frameName);
-          // Do something unique for button 1
-      }
-    );
-    this.add.existing(button1);
   
+    let dispenseButton = new ToggleButton(
+      this,
+      this.gameHeight/2, this.gameWidth/9,
+      'buttons',
+      ['silver-!arrowdown', 'silver-!arrowdown-pushed'],
+      (frameName) => {
+        console.log('dispenseButton was toggled to frame', frameName);
+        if(this.isDispensing){
+          this.isDispensing = false;
+          socket.emit('action_keydown','SPACE');
+  
+        }
+        else{
+          this.isDispensing = true;
+          socket.emit('action_keydown','SPACE');
+        }
+      },
+      5,
+    );
+    this.add.existing(dispenseButton);
     
-    var dispenseSprite = this.add.sprite(this.gameHeight/2, this.gameWidth/9, 'buttons', 'silver-!arrowdown');
-    dispenseSprite.scale = 5;
-    dispenseSprite.setAngle(90);
-
-    this.dispenseButton = new Button(dispenseSprite);
-    this.dispenseButton.on('click', function()
-    {
-      console.log('clicked dispense');
-      if(this.isDispensing){
-        dispenseSprite.setTexture('silverdown')
-        this.isDispensing = false;
-        socket.emit('action_keydown','SPACE');
-
-      }
-      else{
-        dispenseSprite.setTexture('silverdownpush')
-        this.isDispensing = true;
-        socket.emit('action_keydown','SPACE');
-      }
-    })
 
     var rotateCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.7/3, 'silverright');
     rotateCWSprite.scale = 4;
@@ -122,8 +109,6 @@ export default class MobileScene extends Phaser.Scene {
     var rotateCCWSprite = this.add.sprite(this.gameHeight/6, this.gameWidth*2.3/3, 'silverleft');
     rotateCCWSprite.scale = 4;
     rotateCCWSprite.setAngle(90);
-    // this.isRotatingCW = false;
-    // this.isRotatingCCW = false;
     
     this.updateRotateButtonStates = function() {
       if (this.isRotatingCW) {

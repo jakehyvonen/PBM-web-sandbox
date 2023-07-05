@@ -76,7 +76,6 @@ const keyboard_action_dict = {
     "G":ERAS_actions.Syringe_CNC_Mid,
     "0":ERAS_actions.Swap_Syringe,
     "1":ERAS_actions.Swap_Syringe,
-    //commented out because not yet physically active
     "2":ERAS_actions.Swap_Syringe,
     "3":ERAS_actions.Swap_Syringe,
     //"4":ERAS_actions.Swap_Syringe,
@@ -86,10 +85,6 @@ const keyboard_action_dict = {
 
 const action_dict_keys = Object.keys(keyboard_action_dict);
 const jog_dict_keys = Object.keys(keyboard_jog_dict);
-
-function notify_action_finished(){
-    io.emit()
-}
 
 const tcp_server = net.createServer((callback_socket) => {
     console.log('Client connected:', callback_socket.remoteAddress, callback_socket.remotePort);
