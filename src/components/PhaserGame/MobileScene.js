@@ -245,7 +245,6 @@ export default class MobileScene extends Phaser.Scene {
     );
     this.add.existing(swapButton3);
 
-    //#endregion
 
     this.swapButtons = [swapButton0, swapButton1, swapButton2, swapButton3];
 
@@ -288,7 +287,17 @@ export default class MobileScene extends Phaser.Scene {
       })
     };
 
-    
+    //#endregion
+
+    let replayButton = new ToggleButton(
+      this, this.gameHeight*5/6, this.gameWidth/3,
+      'buttons', ['green-!triangle', 'green-triangle-pushed'],
+      (frameName) => {
+
+      }
+    );
+    this.add.existing(replayButton)
+
     var recordButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/9, 'redr');
     recordButtonSprite.scale = 5;
     recordButtonSprite.setAngle(90);

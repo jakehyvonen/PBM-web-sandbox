@@ -295,13 +295,13 @@ function End_Run(){
 }
 
 function User_Joined(user_id){
-    log.console('user joined with id: ' + user_id);
+    console.log('user joined with id: ' + user_id);
     message = ERAS_actions.User_Joined + ',' + user_id;
     send_tcp_msg(message);
 }
 
 function User_Left(user_id){
-    log.console('user left with id: ' + user_id);
+    console.log('user left with id: ' + user_id);
     message = ERAS_actions.User_Left + ',' + user_id;
     send_tcp_msg(message);
 }
