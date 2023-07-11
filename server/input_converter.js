@@ -294,8 +294,24 @@ function End_Run(){
     send_tcp_msg(ERAS_actions.End_Run)
 }
 
+function User_Joined(user_id){
+    log.console('user joined with id: ' + user_id);
+    message = ERAS_actions.User_Joined + ',' + user_id;
+    send_tcp_msg(message);
+}
+
+function User_Left(user_id){
+    log.console('user left with id: ' + user_id);
+    message = ERAS_actions.User_Left + ',' + user_id;
+    send_tcp_msg(message);
+}
+
 exports.Begin_Session = Begin_Session;
 exports.End_Session = End_Session;
+exports.Begin_Run = Begin_Run;
+exports.End_Run = End_Run;
+exports.User_Joined = User_Joined;
+exports.User_Left = User_Left;
 exports.handle_keyboard_data = handle_keyboard_data;
 exports.handle_action_keydown = handle_action_keydown;
 exports.handle_joystick_data = handle_joystick_data;

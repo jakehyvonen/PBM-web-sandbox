@@ -29,12 +29,13 @@ app.use((req, res, next) => {
 
 io.on('connection',(socket)=>{
   console.log('client connected: ',socket.id)
-  converter.Begin_Session()
+  converter.User_Joined(socket.id)
   // socket.on('deviceOrientation', (data) => {
   //   console.log('Received device orientation:', data);
   // });
 
   socket.on('disconnect',(reason)=>{
+    converter.User_Left(socket.id)
     console.log(reason)
   })
 
