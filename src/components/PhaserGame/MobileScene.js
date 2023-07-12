@@ -293,45 +293,45 @@ export default class MobileScene extends Phaser.Scene {
       this, this.gameHeight*5/6, this.gameWidth/3,
       'buttons', ['green-!triangle', 'green-triangle-pushed'],
       (frameName) => {
-
+        socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
       }
     );
     this.add.existing(replayButton)
 
-    var recordButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/9, 'redr');
-    recordButtonSprite.scale = 5;
-    recordButtonSprite.setAngle(90);
+    // var recordButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/9, 'redr');
+    // recordButtonSprite.scale = 5;
+    // recordButtonSprite.setAngle(90);
 
-    var replayButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/3, 'greentriangle');
-    replayButtonSprite.scale = 3;
-    replayButtonSprite.setAngle(90);
+    // var replayButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/3, 'greentriangle');
+    // replayButtonSprite.scale = 3;
+    // replayButtonSprite.setAngle(90);
 
-    this.recordButton = new Button(recordButtonSprite);
-    this.recordButton.on('click', function()
-    {
-      console.log('clickyrec');      
+    // this.recordButton = new Button(recordButtonSprite);
+    // this.recordButton.on('click', function()
+    // {
+    //   console.log('clickyrec');      
 
-      if(this.isRecording){
-        recordButtonSprite.setTexture('redr')
-        this.isRecording = false;
-        //hardcode mapped to End_Run
-        socket.emit('action_keydown','N');
-      }
-      else{
-        recordButtonSprite.setTexture('redrpush')
-        this.isRecording = true;
-        //hardcode mapped to Begin_Run
-        socket.emit('action_keydown','B');
-      }
-    })
+    //   if(this.isRecording){
+    //     recordButtonSprite.setTexture('redr')
+    //     this.isRecording = false;
+    //     //hardcode mapped to End_Run
+    //     socket.emit('action_keydown','N');
+    //   }
+    //   else{
+    //     recordButtonSprite.setTexture('redrpush')
+    //     this.isRecording = true;
+    //     //hardcode mapped to Begin_Run
+    //     socket.emit('action_keydown','B');
+    //   }
+    // })
 
-    this.replayButton = new Button(replayButtonSprite);
-    this.replayButton.on('click', function()
-    {
-      console.log('clicky3');      
-      //hardcode mapped to Replay_Motif
-      socket.emit('action_keydown','R');      
-    })
+    // this.replayButton = new Button(replayButtonSprite);
+    // this.replayButton.on('click', function()
+    // {
+    //   console.log('clicky3');      
+    //   //hardcode mapped to Replay_Motif
+    //   socket.emit('action_keydown','R');      
+    // })
 
     this.setCursorDebugInfo();
     this.updateJoystickState();

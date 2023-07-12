@@ -19,6 +19,7 @@
         "End_Motif": "End_Motif",
         "Replay_Motif": "Replay_Motif",
         "Begin_Gesture": "Begin_Gesture",
+        "Replay_Last_Gesture": "Replay_Last_Gesture",
         "Toggle_Dispense": "Toggle_Dispense",
         "Toggle_Withdraw": "Toggle_Withdraw",
         "Toggle_Rotation_CW": "Toggle_Rotation_CW",
