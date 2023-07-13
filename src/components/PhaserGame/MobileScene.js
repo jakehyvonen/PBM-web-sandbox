@@ -58,10 +58,12 @@ export default class MobileScene extends Phaser.Scene {
     });
 
     this.isBusy = false;
-    socket.on('finished', ()=>{
+    socket.on('finished', (data)=>{
       console.log('we finnished');
       this.isBusy = false;
-      this.setAllSwappersActive();
+      if(data.includes(ERAS_actions.Swap_Syringe)){
+        this.setAllSwappersActive();
+      }
     });
     this.cursorDebugTextA = this.add.text(100, 200);
     this.input.addPointer(1);

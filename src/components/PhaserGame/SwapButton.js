@@ -9,6 +9,7 @@ class SwapButton extends Phaser.GameObjects.Container {
         this.sprite = new Phaser.GameObjects.Sprite(scene, 0, 0, atlas, frameNames[0]);
         this.sprite.setScale(scale);
         this.sprite.setAngle(angle);
+        this.sprite.setTint(0xFF6EC7);
         
         this.frameNames = frameNames;
 
