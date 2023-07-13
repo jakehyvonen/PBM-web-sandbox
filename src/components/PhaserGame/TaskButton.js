@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-class SwapButton extends Phaser.GameObjects.Container {
+class TaskButton extends Phaser.GameObjects.Container {
     constructor(scene, x, y, atlas, frameNames, btnNum, onClick, 
         scale = 3, angle=90, command,) {
         super(scene, x, y);
@@ -38,4 +38,4 @@ class SwapButton extends Phaser.GameObjects.Container {
 
 }
 
-export default SwapButton;
+export default TaskButton;

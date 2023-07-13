@@ -4,7 +4,7 @@ import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-p
 import openSocket from 'socket.io-client';
 import _ from 'lodash'; // Import lodash for throttling
 import ToggleButton from './ToggleButton';
-import SwapButton from './SwapButton';
+import TaskButton from './TaskButton';
 
 const PBM_enums = require('../../enums.json');
 const ERAS_actions = PBM_enums.ERAS_Action;
@@ -54,7 +54,7 @@ export default class MobileScene extends Phaser.Scene {
     socket.on('syringe', (data) => {
       console.log('got syringe data: ' + data);
       this.activeSyringeId = data;
-      this.updateSwapButtonFrames();
+      this.updateTaskButtonFrames();
     });
 
     this.isBusy = false;
@@ -62,7 +62,7 @@ export default class MobileScene extends Phaser.Scene {
       console.log('we finnished');
       this.isBusy = false;
       if(data.includes(ERAS_actions.Swap_Syringe)){
-        this.setAllSwappersActive();
+        this.setAllTaskButtonsActive();
       }
     });
     this.cursorDebugTextA = this.add.text(100, 200);
@@ -209,46 +209,46 @@ export default class MobileScene extends Phaser.Scene {
     //#endregion
 
 
-    //#region SwapButtons
+    //#region TaskButtons
     
-    let swapButton0 = new SwapButton(
+    let taskButton0 = new TaskButton(
       this, this.gameHeight*5/6, this.gameWidth*2.8/3,
       'buttons', ['blue-0','blue-0-pushed'], 0,
       (btnNum) => {
         this.swapSyringe(btnNum);
       },
     );
-    this.add.existing(swapButton0);
+    this.add.existing(taskButton0);
 
-    let swapButton1 = new SwapButton(
+    let taskButton1 = new TaskButton(
       this, this.gameHeight*5/6, this.gameWidth*2.5/3,
       'buttons', ['blue-1','blue-1-pushed'], 1,
       (btnNum) => {
         this.swapSyringe(btnNum);
       },
     );
-    this.add.existing(swapButton1);
+    this.add.existing(taskButton1);
 
-    let swapButton2 = new SwapButton(
+    let taskButton2 = new TaskButton(
       this, this.gameHeight*5/6, this.gameWidth*2.2/3,
       'buttons', ['blue-2','blue-2-pushed'], 2,
       (btnNum) => {
         this.swapSyringe(btnNum);
       },
     );
-    this.add.existing(swapButton2);
+    this.add.existing(taskButton2);
 
-    let swapButton3 = new SwapButton(
+    let taskButton3 = new TaskButton(
       this, this.gameHeight*5/6, this.gameWidth*1.9/3,
       'buttons', ['blue-3','blue-3-pushed'], 3,
       (btnNum) => {
         this.swapSyringe(btnNum);
       },
     );
-    this.add.existing(swapButton3);
+    this.add.existing(taskButton3);
 
 
-    this.swapButtons = [swapButton0, swapButton1, swapButton2, swapButton3];
+    this.taskButtons = [taskButton0, taskButton1, taskButton2, taskButton3];
 
     this.swapSyringe = function(syringeId){
       if(!this.isBusy && this.activeSyringeId != syringeId){
@@ -259,33 +259,33 @@ export default class MobileScene extends Phaser.Scene {
         var message = ERAS_actions.Swap_Syringe + ',' + syringeId;
         socket.emit('ERAS_action',message);
         this.activeSyringeId = syringeId;
-        this.updateSwapButtonFrames();
+        this.updateTaskButtonFrames();
         this.setAllSwappersInactive();
       }
     };
 
-    this.updateSwapButtonFrames = ()=>{
-      this.swapButtons.forEach((swapButton)=>{
+    this.updateTaskButtonFrames = ()=>{
+      this.taskButtons.forEach((taskButton)=>{
         console.log('sane');
-        if (swapButton.btnNum == this.activeSyringeId) {
-          swapButton.sprite.setFrame(swapButton.frameNames[1]);
-          console.log('btn ' + swapButton.btnNum + 'active');
+        if (taskButton.btnNum == this.activeSyringeId) {
+          taskButton.sprite.setFrame(taskButton.frameNames[1]);
+          console.log('btn ' + taskButton.btnNum + 'active');
         }
         else {
-          swapButton.sprite.setFrame(swapButton.frameNames[0]);
+          taskButton.sprite.setFrame(taskButton.frameNames[0]);
         }
       })
     };
 
-    this.setAllSwappersActive = ()=>{
-      this.swapButtons.forEach((swapButton)=>{
-        swapButton.active = true
+    this.setAllTaskButtonsActive = ()=>{
+      this.taskButtons.forEach((taskButton)=>{
+        taskButton.active = true
       })
     };
 
     this.setAllSwappersInactive = ()=>{
-      this.swapButtons.forEach((swapButton)=>{
-        swapButton.active = false
+      this.taskButtons.forEach((taskButton)=>{
+        taskButton.active = false
       })
     };
 
