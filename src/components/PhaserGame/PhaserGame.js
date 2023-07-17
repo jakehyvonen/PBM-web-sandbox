@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import Phaser from 'phaser'
 import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js';
 import MobileScene from './MobileScene';
-import DialogBox from './DialogBox';
+import ReplayGestureDialogBox from './ReplayGestureDialogBox';
+import './../../styles.css'
 //import DesktopScene from './DesktopScene';
 
 class PhaserGame extends Component {
@@ -43,27 +44,32 @@ class PhaserGame extends Component {
 
     showDialogBox = () => {
         this.setState({ showDialog: true });
+        console.log('showBOX!!!');
       }
 
+    dispatchDialogData = (data) => {
+        const event = new CustomEvent('DialogData', { detail: data });
+        window.dispatchEvent(event);
+    }  
+  
     hideDialogBox = () => {
     this.setState({ showDialog: false });
     }
 
     componentDidMount() {
     this.game = new Phaser.Game(this.config);
+    window.addEventListener('showDialog', this.showDialogBox);
     }
     
     render() {
         return (
             <div>
                 <div id="game"></div>
-                {this.state.showDialog ? 
-                    <DialogBox 
-                        close={this.hideDialogBox}
-                        // additional props for DialogBox
-                    /> 
-                    : null
-                }
+                <ReplayGestureDialogBox
+                    isOpen={this.state.showDialog} 
+                    close={this.hideDialogBox} 
+                    // additional props for DialogBox
+            /> 
             </div>
         )    }
 }

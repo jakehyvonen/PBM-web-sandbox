@@ -301,8 +301,11 @@ export default class MobileScene extends Phaser.Scene {
       this, this.gameHeight*5/6, this.gameWidth/3,
       'buttons', ['green-!triangle', 'green-triangle-pushed'],
       (frameName) => {
-        socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
-        this.setAllSwappersInactive();
+        window.dispatchEvent(new CustomEvent('showDialog'));
+        console.log('we may be sane');
+
+        // socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
+        // this.setAllSwappersInactive();
       }
     );
     this.add.existing(replayGestureButton)
