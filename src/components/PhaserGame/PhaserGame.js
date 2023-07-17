@@ -2,12 +2,16 @@ import React, { Component } from 'react'
 import Phaser from 'phaser'
 import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js';
 import MobileScene from './MobileScene';
+import DialogBox from './DialogBox';
 //import DesktopScene from './DesktopScene';
 
 class PhaserGame extends Component {
 
     constructor() {
     super();
+    this.state = {
+        showDialog: false
+      };
 
     this.config = {
         type: Phaser.AUTO,   
@@ -37,13 +41,31 @@ class PhaserGame extends Component {
     };
     }
 
+    showDialogBox = () => {
+        this.setState({ showDialog: true });
+      }
+
+    hideDialogBox = () => {
+    this.setState({ showDialog: false });
+    }
+
     componentDidMount() {
     this.game = new Phaser.Game(this.config);
     }
     
     render() {
-    return (<div id="game"></div>)
-    }
+        return (
+            <div>
+                <div id="game"></div>
+                {this.state.showDialog ? 
+                    <DialogBox 
+                        close={this.hideDialogBox}
+                        // additional props for DialogBox
+                    /> 
+                    : null
+                }
+            </div>
+        )    }
 }
 
 export default PhaserGame;

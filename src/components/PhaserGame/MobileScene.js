@@ -61,9 +61,12 @@ export default class MobileScene extends Phaser.Scene {
     socket.on('finished', (data)=>{
       console.log('we finnished');
       this.isBusy = false;
-      if(data.includes(ERAS_actions.Swap_Syringe)){
-        this.setAllTaskButtonsActive();
-      }
+      this.setAllTaskButtonsActive();
+
+      // unnecessary? We will always want to block taskButtons while a task is running
+      // if(data.includes(ERAS_actions.Swap_Syringe)){
+      //   this.setAllTaskButtonsActive();
+      // }
     });
     this.cursorDebugTextA = this.add.text(100, 200);
     this.input.addPointer(1);
@@ -94,7 +97,7 @@ export default class MobileScene extends Phaser.Scene {
     }
     //#region ToggleButtons
     let dispenseButton = new ToggleButton(
-      this, this.gameHeight/2, this.gameWidth/9,
+      this, this.gameHeight/6, this.gameWidth/2,
       'buttons',
       ['silver-!arrowdown', 'silver-!arrowdown-pushed'],
       (frameName) => {
@@ -171,7 +174,7 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(rotateCCWButton);
 
     let orientationButton = new ToggleButton(
-      this, this.gameHeight/2, this.gameWidth*2.7/3,
+      this, this.gameHeight/2, this.gameWidth*5.5/6,
       'buttons', ['silver-T', 'silver-T-pushed'],
       (frameName) => {
       console.log('orientationButton was toggled to frame', frameName);
@@ -191,7 +194,7 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(orientationButton);
 
     let centerButton = new ToggleButton(
-      this, this.gameHeight/2, this.gameWidth*5/6,
+      this, this.gameHeight/2, this.gameWidth*4.5/6,
       'buttons', ['silver-C'],
       (frameName) => {
         console.log('orientationButton was toggled to frame', frameName);
@@ -206,6 +209,23 @@ export default class MobileScene extends Phaser.Scene {
       },
     );
     this.add.existing(centerButton);
+
+    let recordMotifButton = new ToggleButton(
+      this, this.gameHeight*5/6, this.gameWidth*0.5/6,
+      'buttons', ['red-R','red-R-pushed'],
+      (frameName) => {
+        console.log('recordButton was toggled to frame', frameName);        
+        if(this.isRecording){
+          socket.emit('ERAS_action', ERAS_actions.End_Motif);
+          this.isRecording = false;
+        }
+        else{
+          socket.emit('ERAS_action', ERAS_actions.Begin_Motif);
+          this.isRecording = true;
+        }
+      },
+    );
+    this.add.existing(recordMotifButton);
     //#endregion
 
 
@@ -277,6 +297,26 @@ export default class MobileScene extends Phaser.Scene {
       })
     };
 
+    let replayGestureButton = new ToggleButton(
+      this, this.gameHeight*5/6, this.gameWidth/3,
+      'buttons', ['green-!triangle', 'green-triangle-pushed'],
+      (frameName) => {
+        socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
+        this.setAllSwappersInactive();
+      }
+    );
+    this.add.existing(replayGestureButton)
+
+    let replayMotifButton = new ToggleButton(
+      this, this.gameHeight*5/6, this.gameWidth*1.1/6,
+      'buttons', ['green-M', 'green-M-pushed'],
+      (frameName) => {
+        socket.emit('ERAS_action', ERAS_actions.Replay_Motif)
+        this.setAllSwappersInactive();
+      }
+    );
+    this.add.existing(replayMotifButton)
+
     this.setAllTaskButtonsActive = ()=>{
       this.taskButtons.forEach((taskButton)=>{
         taskButton.active = true
@@ -288,17 +328,9 @@ export default class MobileScene extends Phaser.Scene {
         taskButton.active = false
       })
     };
-
     //#endregion
 
-    let replayButton = new ToggleButton(
-      this, this.gameHeight*5/6, this.gameWidth/3,
-      'buttons', ['green-!triangle', 'green-triangle-pushed'],
-      (frameName) => {
-        socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
-      }
-    );
-    this.add.existing(replayButton)
+    
 
     // var recordButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/9, 'redr');
     // recordButtonSprite.scale = 5;

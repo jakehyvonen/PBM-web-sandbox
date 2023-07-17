@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import "./styles.css";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import PhaserGame from './components/PhaserGame/PhaserGame';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
   const handle = useFullScreenHandle();
