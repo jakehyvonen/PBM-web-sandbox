@@ -7,18 +7,9 @@ class ReplayGestureDialogBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpen: false,
       rotation: '0',
       syringe: '0'
     };
-  }
-
-  open = () => {
-    this.setState({ isOpen: true });
-  }
-
-  close = () => {
-    this.setState({ isOpen: false });
   }
 
   handleSubmit = () => {
@@ -31,7 +22,8 @@ class ReplayGestureDialogBox extends React.Component {
 
   render() {
     return (
-      <Modal show={this.state.isOpen} onHide={this.close} className="gestureDiaBox">
+      <Modal show={this.props.isOpen} onHide={this.props.close} className="gestureDiaBox">
+        <h1>Hello World</h1>
         <Modal.Header closeButton>
           <Modal.Title>Select Options</Modal.Title>
         </Modal.Header>
@@ -39,7 +31,7 @@ class ReplayGestureDialogBox extends React.Component {
           {/* Insert your form fields here */}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={this.close}>
+          <Button variant="secondary" onClick={this.props.close}>
             Close
           </Button>
           <Button variant="primary" onClick={this.handleSubmit}>
