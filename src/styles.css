@@ -24,8 +24,18 @@
   transform: translate(-50%, -5%) rotate(90deg);
   width: 70vh; 
   height: 70vw;
+  z-index: 1000;
 }
 
+.overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999; 
+  display: none; 
+}
 
 
 #stream{

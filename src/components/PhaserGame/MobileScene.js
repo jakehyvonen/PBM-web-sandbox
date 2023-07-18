@@ -68,6 +68,15 @@ export default class MobileScene extends Phaser.Scene {
       //   this.setAllTaskButtonsActive();
       // }
     });
+
+    window.addEventListener('showDialog', () => {
+      this.scene.pause();
+    });
+
+    window.addEventListener('hideDialog', () => {
+        this.scene.resume();
+    });
+
     this.cursorDebugTextA = this.add.text(100, 200);
     this.input.addPointer(1);
 

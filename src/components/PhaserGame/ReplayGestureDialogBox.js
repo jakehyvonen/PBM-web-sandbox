@@ -18,6 +18,19 @@ class ReplayGestureDialogBox extends React.Component {
 
   }
 
+  open = () => {
+    this.setState({ isOpen: true });
+    const event = new Event('showDialog');
+    window.dispatchEvent(event);
+  }
+
+  close = (data) => {
+      this.setState({ isOpen: false });
+      const event = new CustomEvent('hideDialog', { detail: data });
+      window.dispatchEvent(event);
+  }
+
+
   nextStep = () => {
     const currentStep = this.state.currentStep;
     this.setState({ 
@@ -49,10 +62,13 @@ class ReplayGestureDialogBox extends React.Component {
     }
     this.props.close(data);
     this.setState({currentStep: 1});
+    const event = new CustomEvent('hideDialog', { detail: data });
+    window.dispatchEvent(event);
   }
 
   render() {
     console.log('DialogBox rendered'); // Will be logged each time the component is rendered
+    const dialogBoxClasses = this.state.isOpen ? 'gestureDiaBox overlay' : 'gestureDiaBox';
 
     let currentForm;
 
@@ -139,30 +155,34 @@ class ReplayGestureDialogBox extends React.Component {
         );
     }
     return (
-      <Modal show={this.props.isOpen} onHide={this.props.close} className="gestureDiaBox">
-        <Modal.Header closeButton>
-          <Modal.Title>Select Options</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {currentForm}
-        </Modal.Body>
-        <Modal.Footer>
-          {this.state.currentStep > 1 && (
-            <Button variant="secondary" onClick={this.previousStep}>
-              Previous
-            </Button>
-          )}
-          {this.state.currentStep < 2 ? (
-            <Button variant="primary" onClick={this.nextStep}>
-              Next
-            </Button>
-          ) : (
-            <Button variant="primary" onClick={this.handleSubmit}>
-              Submit
-            </Button>
-          )}
-        </Modal.Footer>
-      </Modal>
+      <>
+        <div className={this.state.isOpen ? 'overlay' : ''}></div>
+
+        <Modal show={this.props.isOpen} onHide={this.props.close} className={dialogBoxClasses}>
+          <Modal.Header closeButton>
+            <Modal.Title>Select Options</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {currentForm}
+          </Modal.Body>
+          <Modal.Footer>
+            {this.state.currentStep > 1 && (
+              <Button variant="secondary" onClick={this.previousStep}>
+                Previous
+              </Button>
+            )}
+            {this.state.currentStep < 2 ? (
+              <Button variant="primary" onClick={this.nextStep}>
+                Next
+              </Button>
+            ) : (
+              <Button variant="primary" onClick={this.handleSubmit}>
+                Submit
+              </Button>
+            )}
+          </Modal.Footer>
+        </Modal>
+      </>
     );
     
   }
