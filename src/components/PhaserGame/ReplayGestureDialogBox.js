@@ -20,13 +20,14 @@ class ReplayGestureDialogBox extends React.Component {
 
   open = () => {
     this.setState({ isOpen: true });
-    const event = new Event('showDialog');
+    const event = new Event('showGestureDialog');
     window.dispatchEvent(event);
   }
 
-  close = (data) => {
+  close = () => {
+      console.log('close');
       this.setState({ isOpen: false });
-      const event = new CustomEvent('hideDialog', { detail: data });
+      const event = new CustomEvent('hideGestureDialog');
       window.dispatchEvent(event);
   }
 
@@ -52,7 +53,13 @@ class ReplayGestureDialogBox extends React.Component {
   handleChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
-}
+  }
+
+  handleClose = () => {
+    this.props.close();
+    const event = new CustomEvent('hideGestureDialog', { detail: {} }); // You can customize the detail object as needed
+    window.dispatchEvent(event);
+  }
 
 
   handleSubmit = () => {
@@ -62,7 +69,7 @@ class ReplayGestureDialogBox extends React.Component {
     }
     this.props.close(data);
     this.setState({currentStep: 1});
-    const event = new CustomEvent('submitDialog', { detail: data });
+    const event = new CustomEvent('submitGestureDialog', { detail: data });
     window.dispatchEvent(event);
   }
 
@@ -199,7 +206,8 @@ class ReplayGestureDialogBox extends React.Component {
       <>
         <div className={this.state.isOpen ? 'overlay' : ''}></div>
 
-        <Modal show={this.props.isOpen} onHide={this.props.close} className={dialogBoxClasses}>
+        <Modal show={this.props.isOpen} onHide={this.handleClose} 
+            backdrop="static"  className={dialogBoxClasses}>
           <Modal.Header closeButton>
             <Modal.Title>Select Options</Modal.Title>
           </Modal.Header>

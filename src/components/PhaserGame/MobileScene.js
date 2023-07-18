@@ -299,18 +299,20 @@ export default class MobileScene extends Phaser.Scene {
       })
     };
 
-    window.addEventListener('showDialog', () => {
+    window.addEventListener('showGestureDialog', () => {
       this.scene.pause();
       const data = { activeSyringeId: this.activeSyringeId };
       const event = new CustomEvent('ActiveSyringe', { detail: data });
       window.dispatchEvent(event);
     });
 
-    window.addEventListener('hideDialog', () => {
+    window.addEventListener('hideGestureDialog', () => {
+        console.log('received close in mobilescene');
         this.scene.resume();
+        replayGestureButton.sprite.setFrame(replayGestureButton.frameNames[0]);
     });
 
-    window.addEventListener('submitDialog', () => {
+    window.addEventListener('submitGestureDialog', () => {
       this.scene.resume();
     });
   
