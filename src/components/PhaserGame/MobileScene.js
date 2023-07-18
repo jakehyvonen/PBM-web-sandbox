@@ -69,13 +69,6 @@ export default class MobileScene extends Phaser.Scene {
       // }
     });
 
-    window.addEventListener('showDialog', () => {
-      this.scene.pause();
-    });
-
-    window.addEventListener('hideDialog', () => {
-        this.scene.resume();
-    });
 
     this.cursorDebugTextA = this.add.text(100, 200);
     this.input.addPointer(1);
@@ -306,6 +299,21 @@ export default class MobileScene extends Phaser.Scene {
       })
     };
 
+    window.addEventListener('showDialog', () => {
+      this.scene.pause();
+      const data = { activeSyringeId: this.activeSyringeId };
+      const event = new CustomEvent('ActiveSyringe', { detail: data });
+      window.dispatchEvent(event);
+    });
+
+    window.addEventListener('hideDialog', () => {
+        this.scene.resume();
+    });
+
+    window.addEventListener('submitDialog', () => {
+      this.scene.resume();
+    });
+  
     let replayGestureButton = new ToggleButton(
       this, this.gameHeight*5/6, this.gameWidth/3,
       'buttons', ['green-!triangle', 'green-triangle-pushed'],

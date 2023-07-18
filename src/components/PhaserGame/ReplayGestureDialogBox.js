@@ -62,9 +62,20 @@ class ReplayGestureDialogBox extends React.Component {
     }
     this.props.close(data);
     this.setState({currentStep: 1});
-    const event = new CustomEvent('hideDialog', { detail: data });
+    const event = new CustomEvent('submitDialog', { detail: data });
     window.dispatchEvent(event);
   }
+
+  componentDidMount() {
+    window.addEventListener('ActiveSyringe', this.handleActiveSyringe);
+  }
+  
+  handleActiveSyringe = (event) => {
+    const activeSyringe = event.detail.activeSyringeId;
+    this.setState({ activeSyringe });
+    console.log('HandleActiveSyringe: ' + activeSyringe);
+  }
+  
 
   render() {
     console.log('DialogBox rendered'); // Will be logged each time the component is rendered
@@ -79,6 +90,14 @@ class ReplayGestureDialogBox extends React.Component {
             <Form>
               <Form.Label>Should we rotate?</Form.Label>
               <Form.Check 
+                type="radio"
+                label="0"
+                name="rotationDegree"
+                value="0"
+                checked={this.state.rotationDegree === '0'}
+                onChange={this.handleChange}
+              />
+               <Form.Check 
                 type="radio"
                 label="90"
                 name="rotationDegree"
@@ -102,6 +121,20 @@ class ReplayGestureDialogBox extends React.Component {
                 checked={this.state.rotationDegree === '270'}
                 onChange={this.handleChange}
               />
+              <Form.Group>
+                <Form.Control
+                    type="number"
+                    name="rotationDegree"
+                    value={this.state.rotationDegree}
+                    onChange={this.handleChange}
+                    min="0"
+                    max="359"
+                />
+                <Form.Text className="text-muted">
+                    Or enter a value between 0 and 359.
+                </Form.Text>
+              </Form.Group>
+
             </Form>
           </div>
         );
@@ -118,6 +151,8 @@ class ReplayGestureDialogBox extends React.Component {
                 value="0"
                 checked={this.state.syringeNum === '0'}
                 onChange={this.handleChange}
+                disabled={this.state.activeSyringe.toString() === '0'}
+
               />
               <Form.Check 
                 type="radio"
@@ -126,6 +161,8 @@ class ReplayGestureDialogBox extends React.Component {
                 value="1"
                 checked={this.state.syringeNum === '1'}
                 onChange={this.handleChange}
+                disabled={this.state.activeSyringe.toString() === '1'}
+
               />
               <Form.Check 
                 type="radio"
@@ -134,6 +171,8 @@ class ReplayGestureDialogBox extends React.Component {
                 value="2"
                 checked={this.state.syringeNum === '2'}
                 onChange={this.handleChange}
+                disabled={this.state.activeSyringe.toString() === '2'}
+
               />
               <Form.Check 
                 type="radio"
@@ -142,6 +181,8 @@ class ReplayGestureDialogBox extends React.Component {
                 value="3"
                 checked={this.state.syringeNum === '3'}
                 onChange={this.handleChange}
+                disabled={this.state.activeSyringe.toString() === '3'}
+
               />
             </Form>          
           </div>
@@ -189,80 +230,3 @@ class ReplayGestureDialogBox extends React.Component {
 }
 
 export default ReplayGestureDialogBox;
-
-/*
-return (
-      <Modal show={this.props.isOpen} onHide={this.props.close} className="gestureDiaBox">
-        <Modal.Header closeButton>
-          <Modal.Title>Select Options</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        <Form>
-            <Form.Label>Should we rotate?</Form.Label>
-            <Form.Check 
-              type="radio"
-              label="90"
-              name="rotationDegree"
-              value="90"
-              checked={this.state.rotationDegree === '90'}
-              onChange={this.handleChange}
-            />
-            <Form.Check 
-              type="radio"
-              label="180"
-              name="rotationDegree"
-              value="180"
-              checked={this.state.rotationDegree === '180'}
-              onChange={this.handleChange}
-            />
-            <Form.Check 
-              type="radio"
-              label="270"
-              name="rotationDegree"
-              value="270"
-              checked={this.state.rotationDegree === '270'}
-              onChange={this.handleChange}
-            />
-            <Form.Label>Should we swap syringes?</Form.Label>
-            <Form.Check 
-              type="radio"
-              label="0"
-              name="syringeNum"
-              value="0"
-              checked={this.state.syringeNum === '0'}
-              onChange={this.handleChange}
-            />
-            <Form.Check 
-              type="radio"
-              label="1"
-              name="syringeNum"
-              value="1"
-              checked={this.state.syringeNum === '1'}
-              onChange={this.handleChange}
-            />
-            <Form.Check 
-              type="radio"
-              label="2"
-              name="syringeNum"
-              value="2"
-              checked={this.state.syringeNum === '2'}
-              onChange={this.handleChange}
-            />
-            <Form.Check 
-              type="radio"
-              label="3"
-              name="syringeNum"
-              value="3"
-              checked={this.state.syringeNum === '3'}
-              onChange={this.handleChange}
-            />
-          </Form>        </Modal.Body>
-        <Modal.Footer>
-          
-          <Button variant="primary" onClick={this.handleSubmit}>
-            Replay Gesture
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    );
-    */
