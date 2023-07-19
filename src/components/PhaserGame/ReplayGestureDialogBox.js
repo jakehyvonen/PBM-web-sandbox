@@ -20,14 +20,13 @@ class ReplayGestureDialogBox extends React.Component {
 
   open = () => {
     this.setState({ isOpen: true });
-    const event = new Event('showGestureDialog');
+    const event = new Event('showDialog');
     window.dispatchEvent(event);
   }
 
-  close = () => {
-      console.log('close');
+  close = (data) => {
       this.setState({ isOpen: false });
-      const event = new CustomEvent('hideGestureDialog');
+      const event = new CustomEvent('hideDialog', { detail: data });
       window.dispatchEvent(event);
   }
 
@@ -86,7 +85,6 @@ class ReplayGestureDialogBox extends React.Component {
 
   render() {
     console.log('DialogBox rendered'); // Will be logged each time the component is rendered
-    const dialogBoxClasses = this.state.isOpen ? 'gestureDiaBox overlay' : 'gestureDiaBox';
 
     let currentForm;
 
@@ -206,14 +204,10 @@ class ReplayGestureDialogBox extends React.Component {
       <>
         <div className={this.state.isOpen ? 'overlay' : ''}></div>
 
-        <Modal show={this.props.isOpen} onHide={this.handleClose} 
-            backdrop="static"  className={dialogBoxClasses}>
-
+        <Modal show={this.props.isOpen} onHide={this.props.close} className={dialogBoxClasses}>
           <Modal.Header closeButton>
             <Modal.Title>Select Options</Modal.Title>
           </Modal.Header>
-          <Modal.Dialog onClick={e => e.stopPropagation()}>
-          </Modal.Dialog>
           <Modal.Body>
             {currentForm}
           </Modal.Body>
