@@ -21,9 +21,9 @@ const App = () => {
 
   return (
     <div id="container">
-      <button id="fsbutton" onClick={handle.enter}>
+      {/* <button id="fsbutton" onClick={handle.enter}>
         Enter fullscreen
-      </button>
+      </button> */}
       <FullScreen handle={handle}>
         <div id="phasergame">
           <PhaserGame></PhaserGame>

@@ -197,9 +197,9 @@ export default class MobileScene extends Phaser.Scene {
     );
     this.add.existing(orientationButton);
 
-    let centerButton = new ToggleButton(
+    let levelButton = new ToggleButton(
       this, this.gameHeight/2, this.gameWidth*4.5/6,
-      'buttons', ['silver-C'],
+      'buttons', ['silver-L'],
       (frameName) => {
         console.log('orientationButton was toggled to frame', frameName);
         if(this.orientationBroadcasting){
@@ -212,7 +212,9 @@ export default class MobileScene extends Phaser.Scene {
         socket.emit('ERAS_action', ERAS_actions.Substrate_Neutral);
       },
     );
-    this.add.existing(centerButton);
+    this.add.existing(levelButton);
+
+    /*TODO: implement this
 
     let recordMotifButton = new ToggleButton(
       this, this.gameHeight*5/6, this.gameWidth*0.5/6,
@@ -230,6 +232,8 @@ export default class MobileScene extends Phaser.Scene {
       },
     );
     this.add.existing(recordMotifButton);
+
+    */
     //#endregion
 
 
@@ -325,10 +329,24 @@ export default class MobileScene extends Phaser.Scene {
         this.scene.resume();
     });
 
-    window.addEventListener('submitGestureDialog', () => {
+    window.addEventListener('submitGestureDialog', (event) => {
+      const rotation = event.detail.rotationDegree || 0;
+      const syringe = event.detail.syringeNum;
+
+      let comm = `${ERAS_actions.Replay_Last_Gesture},${rotation}`;
+      if (syringe) {
+        comm += `|${syringe}`;
+      }
+
+      socket.emit('ERAS_action', comm);
+
+      //socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture);
+
+
       this.scene.resume();
     });
 
+    /*TODO: implement this
 
     let replayMotifButton = new ToggleButton(
       this, this.gameHeight*5/6, this.gameWidth*1.1/6,
@@ -339,6 +357,7 @@ export default class MobileScene extends Phaser.Scene {
       }
     );
     this.add.existing(replayMotifButton)
+    */
 
     this.setAllTaskButtonsActive = ()=>{
       this.taskButtons.forEach((taskButton)=>{
