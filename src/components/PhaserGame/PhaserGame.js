@@ -11,7 +11,7 @@ class PhaserGame extends Component {
     constructor() {
     super();
     this.state = {
-        showDialog: false
+        showGestureDialog: false
       };
 
     this.config = {
@@ -42,23 +42,23 @@ class PhaserGame extends Component {
     };
     }
 
-    showDialogBox = () => {
-        this.setState({ showDialog: true });
+    showGestureDialogBox = () => {
+        this.setState({ showGestureDialog: true });
         console.log('showBOX!!!');
       }
 
-    dispatchDialogData = (data) => {
-        const event = new CustomEvent('DialogData', { detail: data });
+    dispatchGestureDialogData = (data) => {
+        const event = new CustomEvent('gestureDialogData', { detail: data });
         window.dispatchEvent(event);
     }  
   
-    hideDialogBox = () => {
-    this.setState({ showDialog: false });
+    hideGestureDialogBox = () => {
+        this.setState({ showGestureDialog: false });
     }
 
     componentDidMount() {
     this.game = new Phaser.Game(this.config);
-    window.addEventListener('showDialog', this.showDialogBox);
+    window.addEventListener('showGestureDialog', this.showGestureDialogBox);
     }
     
     render() {
@@ -66,8 +66,8 @@ class PhaserGame extends Component {
             <div>
                 <div id="game"></div>
                 <ReplayGestureDialogBox
-                    isOpen={this.state.showDialog} 
-                    close={this.hideDialogBox} 
+                    isOpen={this.state.showGestureDialog} 
+                    close={this.hideGestureDialogBox} 
                     // additional props for DialogBox
             /> 
             </div>

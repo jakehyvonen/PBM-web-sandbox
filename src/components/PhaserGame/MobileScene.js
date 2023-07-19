@@ -69,13 +69,6 @@ export default class MobileScene extends Phaser.Scene {
       // }
     });
 
-    window.addEventListener('showDialog', () => {
-      this.scene.pause();
-    });
-
-    window.addEventListener('hideDialog', () => {
-        this.scene.resume();
-    });
 
     this.cursorDebugTextA = this.add.text(100, 200);
     this.input.addPointer(1);
@@ -241,7 +234,7 @@ export default class MobileScene extends Phaser.Scene {
     //#region TaskButtons
     
     let taskButton0 = new TaskButton(
-      this, this.gameHeight*5/6, this.gameWidth*2.8/3,
+      this, this.gameHeight*5/6, this.gameWidth*1.9/3,
       'buttons', ['blue-0','blue-0-pushed'], 0,
       (btnNum) => {
         this.swapSyringe(btnNum);
@@ -250,7 +243,7 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(taskButton0);
 
     let taskButton1 = new TaskButton(
-      this, this.gameHeight*5/6, this.gameWidth*2.5/3,
+      this, this.gameHeight*5/6, this.gameWidth*2.2/3,
       'buttons', ['blue-1','blue-1-pushed'], 1,
       (btnNum) => {
         this.swapSyringe(btnNum);
@@ -259,7 +252,7 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(taskButton1);
 
     let taskButton2 = new TaskButton(
-      this, this.gameHeight*5/6, this.gameWidth*2.2/3,
+      this, this.gameHeight*5/6, this.gameWidth*2.5/3,
       'buttons', ['blue-2','blue-2-pushed'], 2,
       (btnNum) => {
         this.swapSyringe(btnNum);
@@ -268,7 +261,7 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(taskButton2);
 
     let taskButton3 = new TaskButton(
-      this, this.gameHeight*5/6, this.gameWidth*1.9/3,
+      this, this.gameHeight*5/6, this.gameWidth*2.8/3,
       'buttons', ['blue-3','blue-3-pushed'], 3,
       (btnNum) => {
         this.swapSyringe(btnNum);
@@ -310,7 +303,7 @@ export default class MobileScene extends Phaser.Scene {
       this, this.gameHeight*5/6, this.gameWidth/3,
       'buttons', ['green-!triangle', 'green-triangle-pushed'],
       (frameName) => {
-        window.dispatchEvent(new CustomEvent('showDialog'));
+        window.dispatchEvent(new CustomEvent('showGestureDialog'));
         console.log('we may be sane');
 
         // socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
@@ -318,6 +311,22 @@ export default class MobileScene extends Phaser.Scene {
       }
     );
     this.add.existing(replayGestureButton)
+
+    window.addEventListener('showGestureDialog', () => {
+      this.scene.pause();
+      const data = { activeSyringeId: this.activeSyringeId };
+      const event = new CustomEvent('ActiveSyringe', { detail: data });
+      window.dispatchEvent(event);
+    });
+
+    window.addEventListener('hideGestureDialog', () => {
+        this.scene.resume();
+    });
+
+    window.addEventListener('submitGestureDialog', () => {
+      this.scene.resume();
+    });
+
 
     let replayMotifButton = new ToggleButton(
       this, this.gameHeight*5/6, this.gameWidth*1.1/6,

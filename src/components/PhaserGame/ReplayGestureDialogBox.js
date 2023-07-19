@@ -20,14 +20,17 @@ class ReplayGestureDialogBox extends React.Component {
 
   open = () => {
     this.setState({ isOpen: true });
-    const event = new Event('showDialog');
+    const event = new Event('showGestureDialog');
     window.dispatchEvent(event);
+    console.log('open complete');
+
   }
 
-  close = (data) => {
-      this.setState({ isOpen: false });
-      const event = new CustomEvent('hideDialog', { detail: data });
-      window.dispatchEvent(event);
+  handleClose = () => {
+    this.props.close();
+    const event = new CustomEvent('hideGestureDialog', { detail: {} }); // You can customize the detail object as needed
+    window.dispatchEvent(event);
+    console.log('handleClose complete');
   }
 
 
@@ -52,7 +55,17 @@ class ReplayGestureDialogBox extends React.Component {
   handleChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
-}
+  }
+
+  componentDidMount() {
+    window.addEventListener('ActiveSyringe', this.handleActiveSyringe);
+  }
+
+  handleActiveSyringe = (event) => {
+    const activeSyringe = event.detail.activeSyringeId;
+    this.setState({ activeSyringe });
+    console.log('HandleActiveSyringe: ' + activeSyringe);
+  }
 
 
   handleSubmit = () => {
@@ -62,8 +75,9 @@ class ReplayGestureDialogBox extends React.Component {
     }
     this.props.close(data);
     this.setState({currentStep: 1});
-    const event = new CustomEvent('hideDialog', { detail: data });
+    const event = new CustomEvent('submitGestureDialog', { detail: data });
     window.dispatchEvent(event);
+    console.log('handleSubmit complete');
   }
 
   render() {
@@ -85,6 +99,7 @@ class ReplayGestureDialogBox extends React.Component {
                 value="90"
                 checked={this.state.rotationDegree === '90'}
                 onChange={this.handleChange}
+                
               />
               <Form.Check 
                 type="radio"
@@ -118,6 +133,8 @@ class ReplayGestureDialogBox extends React.Component {
                 value="0"
                 checked={this.state.syringeNum === '0'}
                 onChange={this.handleChange}
+                disabled={this.state.activeSyringe.toString() === '0'}
+
               />
               <Form.Check 
                 type="radio"
@@ -126,6 +143,8 @@ class ReplayGestureDialogBox extends React.Component {
                 value="1"
                 checked={this.state.syringeNum === '1'}
                 onChange={this.handleChange}
+                disabled={this.state.activeSyringe.toString() === '1'}
+
               />
               <Form.Check 
                 type="radio"
@@ -134,6 +153,8 @@ class ReplayGestureDialogBox extends React.Component {
                 value="2"
                 checked={this.state.syringeNum === '2'}
                 onChange={this.handleChange}
+                disabled={this.state.activeSyringe.toString() === '2'}
+
               />
               <Form.Check 
                 type="radio"
@@ -142,6 +163,8 @@ class ReplayGestureDialogBox extends React.Component {
                 value="3"
                 checked={this.state.syringeNum === '3'}
                 onChange={this.handleChange}
+                disabled={this.state.activeSyringe.toString() === '3'}
+
               />
             </Form>          
           </div>
@@ -158,7 +181,8 @@ class ReplayGestureDialogBox extends React.Component {
       <>
         <div className={this.state.isOpen ? 'overlay' : ''}></div>
 
-        <Modal show={this.props.isOpen} onHide={this.props.close} className={dialogBoxClasses}>
+        <Modal show={this.props.isOpen} onHide={this.handleClose} 
+            className={dialogBoxClasses}>
           <Modal.Header closeButton>
             <Modal.Title>Select Options</Modal.Title>
           </Modal.Header>
