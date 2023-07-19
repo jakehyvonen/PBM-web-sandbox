@@ -58,7 +58,7 @@ class ReplayGestureDialogBox extends React.Component {
   handleClose = () => {
     this.props.close();
     const event = new CustomEvent('hideGestureDialog', { detail: {} }); // You can customize the detail object as needed
-    window.dispatchEvent(event);
+    window.dispatchEvent(event);    
   }
 
 
@@ -208,9 +208,12 @@ class ReplayGestureDialogBox extends React.Component {
 
         <Modal show={this.props.isOpen} onHide={this.handleClose} 
             backdrop="static"  className={dialogBoxClasses}>
+
           <Modal.Header closeButton>
             <Modal.Title>Select Options</Modal.Title>
           </Modal.Header>
+          <Modal.Dialog onClick={e => e.stopPropagation()}>
+          </Modal.Dialog>
           <Modal.Body>
             {currentForm}
           </Modal.Body>

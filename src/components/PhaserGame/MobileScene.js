@@ -51,10 +51,12 @@ export default class MobileScene extends Phaser.Scene {
   }
    
   create() {
+    this.input.enabled = true;
     socket.on('syringe', (data) => {
       console.log('got syringe data: ' + data);
       this.activeSyringeId = data;
       this.updateTaskButtonFrames();
+      this.broadcastActiveSyringe();
     });
 
     this.isBusy = false;
@@ -282,7 +284,7 @@ export default class MobileScene extends Phaser.Scene {
         socket.emit('ERAS_action',message);
         this.activeSyringeId = syringeId;
         this.updateTaskButtonFrames();
-        this.setAllSwappersInactive();
+        this.setAllTaskButtonsInactive();
       }
     };
 
@@ -299,29 +301,11 @@ export default class MobileScene extends Phaser.Scene {
       })
     };
 
-    window.addEventListener('showGestureDialog', () => {
-      this.scene.pause();
-      const data = { activeSyringeId: this.activeSyringeId };
-      const event = new CustomEvent('ActiveSyringe', { detail: data });
-      window.dispatchEvent(event);
-    });
-
-    window.addEventListener('hideGestureDialog', () => {
-        console.log('received close in mobilescene');
-        this.scene.resume();
-        replayGestureButton.sprite.setFrame(replayGestureButton.frameNames[0]);
-    });
-
-    window.addEventListener('submitGestureDialog', () => {
-      this.scene.resume();
-    });
-  
     let replayGestureButton = new ToggleButton(
       this, this.gameHeight*5/6, this.gameWidth/3,
       'buttons', ['green-!triangle', 'green-triangle-pushed'],
       (frameName) => {
         window.dispatchEvent(new CustomEvent('showDialog'));
-        console.log('we may be sane');
 
         // socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
         // this.setAllSwappersInactive();
@@ -329,12 +313,41 @@ export default class MobileScene extends Phaser.Scene {
     );
     this.add.existing(replayGestureButton)
 
+    window.addEventListener('showGestureDialog', () => {
+      this.scene.pause();
+      this.input.enabled = false;
+      this.setAllTaskButtonsInactive()
+      this.broadcastActiveSyringe()
+    });
+
+    window.addEventListener('hideGestureDialog', () => {
+        console.log('received close in mobilescene');
+        setTimeout(() => {
+          this.scene.resume();
+          setTimeout(() => {
+            this.setAllTaskButtonsActive();
+            this.input.enabled = true;
+            }, 5000);
+            console.log('finished waiting for setAllTaskButtons')
+        }, 1000);        
+//        replayGestureButton.setFrame(replayGestureButton.frames[0]);
+//        orientationButton.setFrame(orientationButton.frames[0]);//un-pushed image
+
+    });
+
+    window.addEventListener('submitGestureDialog', () => {
+      this.input.enabled = true;
+      this.scene.resume();
+    });
+  
+    
+
     let replayMotifButton = new ToggleButton(
       this, this.gameHeight*5/6, this.gameWidth*1.1/6,
       'buttons', ['green-M', 'green-M-pushed'],
       (frameName) => {
         socket.emit('ERAS_action', ERAS_actions.Replay_Motif)
-        this.setAllSwappersInactive();
+        this.setAllTaskButtonsInactive();
       }
     );
     this.add.existing(replayMotifButton)
@@ -342,53 +355,18 @@ export default class MobileScene extends Phaser.Scene {
     this.setAllTaskButtonsActive = ()=>{
       this.taskButtons.forEach((taskButton)=>{
         taskButton.active = true
+        taskButton.sprite.setInteractive()
       })
     };
 
-    this.setAllSwappersInactive = ()=>{
+    this.setAllTaskButtonsInactive = ()=>{
       this.taskButtons.forEach((taskButton)=>{
         taskButton.active = false
+        taskButton.sprite.disableInteractive()
       })
     };
     //#endregion
-
-    
-
-    // var recordButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/9, 'redr');
-    // recordButtonSprite.scale = 5;
-    // recordButtonSprite.setAngle(90);
-
-    // var replayButtonSprite = this.add.sprite(this.gameHeight*5/6, this.gameWidth/3, 'greentriangle');
-    // replayButtonSprite.scale = 3;
-    // replayButtonSprite.setAngle(90);
-
-    // this.recordButton = new Button(recordButtonSprite);
-    // this.recordButton.on('click', function()
-    // {
-    //   console.log('clickyrec');      
-
-    //   if(this.isRecording){
-    //     recordButtonSprite.setTexture('redr')
-    //     this.isRecording = false;
-    //     //hardcode mapped to End_Run
-    //     socket.emit('action_keydown','N');
-    //   }
-    //   else{
-    //     recordButtonSprite.setTexture('redrpush')
-    //     this.isRecording = true;
-    //     //hardcode mapped to Begin_Run
-    //     socket.emit('action_keydown','B');
-    //   }
-    // })
-
-    // this.replayButton = new Button(replayButtonSprite);
-    // this.replayButton.on('click', function()
-    // {
-    //   console.log('clicky3');      
-    //   //hardcode mapped to Replay_Motif
-    //   socket.emit('action_keydown','R');      
-    // })
-
+  
     this.setCursorDebugInfo();
     this.updateJoystickState();
     this.broadcastInterval = setInterval(() => this.broadcastJoysticks(), 50);
@@ -490,6 +468,11 @@ export default class MobileScene extends Phaser.Scene {
     }
   }
 
+  broadcastActiveSyringe(){
+    const data = { activeSyringeId: this.activeSyringeId };
+    const event = new CustomEvent('ActiveSyringe', { detail: data });
+    window.dispatchEvent(event);
+  }
 
   update() {
     this.updateJoystickState();   
