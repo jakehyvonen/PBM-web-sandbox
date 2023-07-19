@@ -24,18 +24,21 @@
   transform: translate(-50%, -5%) rotate(90deg);
   width: 70vh; 
   height: 70vw;
-  z-index: 1000;
 }
 
+<<<<<<< HEAD
 .overlay {
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 999; 
-  display: none; 
+  z-index: 999;
+  background-color: rgba(0, 0, 0, 0.5); /* Adjust the background color and opacity as needed */
 }
+=======
+>>>>>>> parent of 2aa9eba... pause phaser while dialoging
+
 
 
 #stream{
