@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
-import './../../styles.css'
+import './../../styles.css';
 
 class ReplayGestureDialogBox extends React.Component {
   constructor(props) {
@@ -12,10 +12,8 @@ class ReplayGestureDialogBox extends React.Component {
       rotation: '0',
       syringe: '0',
       currentStep: 1, // added this state to keep track of the current form
-
     };
     console.log('DialogBox initialized'); // Will be logged when the component is initialized
-
   }
 
   open = () => {
@@ -23,7 +21,6 @@ class ReplayGestureDialogBox extends React.Component {
     const event = new Event('showGestureDialog');
     window.dispatchEvent(event);
     console.log('open complete');
-
   }
 
   handleClose = () => {
@@ -32,7 +29,6 @@ class ReplayGestureDialogBox extends React.Component {
     window.dispatchEvent(event);
     console.log('handleClose complete');
   }
-
 
   nextStep = () => {
     const currentStep = this.state.currentStep;
@@ -55,7 +51,7 @@ class ReplayGestureDialogBox extends React.Component {
   handleChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
-    }
+  }
 
   componentDidMount() {
     window.addEventListener('ActiveSyringe', this.handleActiveSyringe);
@@ -65,12 +61,7 @@ class ReplayGestureDialogBox extends React.Component {
     const activeSyringe = event.detail.activeSyringeId;
     this.setState({ activeSyringe });
     console.log('HandleActiveSyringe: ' + activeSyringe);
-  handleClose = () => {
-    this.props.close();
-    const event = new CustomEvent('hideGestureDialog', { detail: {} }); // You can customize the detail object as needed
-    window.dispatchEvent(event);    
   }
-
 
   handleSubmit = () => {
     const data = {
@@ -83,17 +74,6 @@ class ReplayGestureDialogBox extends React.Component {
     window.dispatchEvent(event);
     console.log('handleSubmit complete');
   }
-
-  componentDidMount() {
-    window.addEventListener('ActiveSyringe', this.handleActiveSyringe);
-  }
-  
-  handleActiveSyringe = (event) => {
-    const activeSyringe = event.detail.activeSyringeId;
-    this.setState({ activeSyringe });
-    console.log('HandleActiveSyringe: ' + activeSyringe);
-  }
-  
 
   render() {
     console.log('DialogBox rendered'); // Will be logged each time the component is rendered
@@ -218,7 +198,7 @@ class ReplayGestureDialogBox extends React.Component {
         <div className={this.state.isOpen ? 'overlay' : ''}></div>
 
         <Modal show={this.props.isOpen} onHide={this.handleClose} 
-            className={dialogBoxClasses}>
+            className='gestureDiaBox'>
           <Modal.Header closeButton>
             <Modal.Title>Select Options</Modal.Title>
           </Modal.Header>
@@ -247,5 +227,6 @@ class ReplayGestureDialogBox extends React.Component {
     
   }
 }
+
 
 export default ReplayGestureDialogBox;
