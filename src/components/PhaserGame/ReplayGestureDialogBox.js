@@ -9,11 +9,20 @@ class ReplayGestureDialogBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rotation: '0',
-      syringe: '0',
+      rotationDegree: null,
+      syringeNum: null,
       currentStep: 1, // added this state to keep track of the current form
+      isOpen: false,
     };
     console.log('DialogBox initialized'); // Will be logged when the component is initialized
+  }
+
+  resetState = () => {
+    this.setState({
+      rotationDegree: null,
+      syringeNum: null,
+      currentStep: 1,
+    });
   }
 
   open = () => {
@@ -23,11 +32,15 @@ class ReplayGestureDialogBox extends React.Component {
     console.log('open complete');
   }
 
-  handleClose = () => {
+  close = () => {
     this.props.close();
+    this.props.isOpen = false;
+    this.setState({ isOpen: false });
     const event = new CustomEvent('hideGestureDialog', { detail: {} }); // You can customize the detail object as needed
     window.dispatchEvent(event);
-    console.log('handleClose complete');
+    this.resetState()
+
+    console.log('close complete');
   }
 
   nextStep = () => {
@@ -65,15 +78,19 @@ class ReplayGestureDialogBox extends React.Component {
 
   handleSubmit = () => {
     const data = {
-      rotation: this.state.rotation,
-      syringe: this.state.syringe,
+      rotationDegree: this.state.rotationDegree,
+      syringeNum: this.state.syringeNum,
     }
     this.props.close(data);
-    this.setState({currentStep: 1});
-    const event = new CustomEvent('hideDialog', { detail: data });
+    this.props.isOpen = false;
+    this.setState({ isOpen: false });
+    this.resetState()
+    const event = new CustomEvent('submitGestureDialog', { detail: data });
     window.dispatchEvent(event);
     console.log('handleSubmit complete');
   }
+
+  
 
   render() {
     console.log('DialogBox rendered'); // Will be logged each time the component is rendered
@@ -197,7 +214,7 @@ class ReplayGestureDialogBox extends React.Component {
       <>
         <div className={this.state.isOpen ? 'overlay' : ''}></div>
 
-        <Modal show={this.props.isOpen} onHide={this.handleClose} 
+        <Modal show={this.props.isOpen} onHide={this.close} 
             className='gestureDiaBox'>
           <Modal.Header closeButton>
             <Modal.Title>Select Options</Modal.Title>
