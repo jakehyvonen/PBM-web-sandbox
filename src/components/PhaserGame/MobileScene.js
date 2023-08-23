@@ -40,8 +40,8 @@ export default class MobileScene extends Phaser.Scene {
     this.gameWidth = this.sys.game.config.height;    
 
     this.joystickAConfig = {
-      x: this.gameHeight/6,
-      y: this.gameWidth/9,
+      x: this.gameHeight/4,
+      y: this.gameWidth/6,
     }
     this.isDispensing = false;
     this.isRotatingCW = false;
@@ -306,7 +306,7 @@ export default class MobileScene extends Phaser.Scene {
     };
 
     let replayGestureButton = new ToggleButton(
-      this, this.gameHeight*5/6, this.gameWidth/3,
+      this, this.gameHeight*5/6, this.gameWidth/6,
       'buttons', ['green-!triangle', 'green-triangle-pushed'],
       (frameName) => {
         window.dispatchEvent(new CustomEvent('showGestureDialog'));
