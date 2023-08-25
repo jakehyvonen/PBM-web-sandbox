@@ -116,7 +116,7 @@ export default class MobileScene extends Phaser.Scene {
           socket.emit('ERAS_action', ERAS_actions.Toggle_Dispense);
         }
       },
-      5,
+      5, 'Dispense',
     );
     this.add.existing(dispenseButton);
 
@@ -151,7 +151,7 @@ export default class MobileScene extends Phaser.Scene {
         }
         this.updateRotateButtonFrames();
       },
-      4,
+      4, 'CW',
     );
     this.add.existing(rotateCWButton);
     
@@ -173,7 +173,7 @@ export default class MobileScene extends Phaser.Scene {
         }
         this.updateRotateButtonFrames();
       },
-      4,
+      4, 'Rotate CCW',
     );
     this.add.existing(rotateCCWButton);
 
@@ -194,6 +194,7 @@ export default class MobileScene extends Phaser.Scene {
 
         }
       },
+      3, 'Tilt Table'
     );
     this.add.existing(orientationButton);
 
@@ -211,6 +212,7 @@ export default class MobileScene extends Phaser.Scene {
         }
         socket.emit('ERAS_action', ERAS_actions.Substrate_Neutral);
       },
+      3, 'Level Table'
     );
     this.add.existing(levelButton);
 
@@ -315,6 +317,7 @@ export default class MobileScene extends Phaser.Scene {
         // socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
         // this.setAllSwappersInactive();
       }
+      ,3, 'Replay',
     );
     this.add.existing(replayGestureButton)
 
