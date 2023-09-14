@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <div id="output"></div>
+    <script>
+        const output = document.getElementById('output');
+        const socket = new WebSocket('ws://localhost:5676'); // Replace with your WebSocket server URL
+
+        socket.onopen = () => {
+            output.innerHTML += '<p>WebSocket connected.</p>';
+        };
+
+        socket.onmessage = (event) => {
+            output.innerHTML += `<p>Received: ${event.data}</p>`;
+        };
+
+        socket.onclose = (event) => {
+            if (event.wasClean) {
+                output.innerHTML += `<p>WebSocket closed cleanly, code=${event.code}, reason=${event.reason}</p>`;
+            } else {
+                output.innerHTML += '<p>Connection died</p>';
+            }
+        };
+
+        socket.onerror = (error) => {
+            output.innerHTML += `<p>Error: ${error.message}</p>`;
+        };
+
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+            socket.send(message);
+        }
+    </script>
+</body>
+</html>

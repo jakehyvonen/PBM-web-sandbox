@@ -58,6 +58,19 @@ export default class MobileScene extends Phaser.Scene {
       this.updateTaskButtonFrames();
       this.broadcastActiveSyringe();
     });
+    socket.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      // You can add custom error handling here if needed
+    });
+      
+  socket.on('connect', () => {
+    console.log('Connected to WebSocket server');
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.log('Disconnected from WebSocket server:', reason);
+  });
+
 
     this.isBusy = false;
     socket.on('finished', (data)=>{

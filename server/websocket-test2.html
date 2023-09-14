@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <div id="messages"></div>
+
+    <script>
+        // Create a WebSocket connection to the server
+        const socket = new WebSocket('ws://localhost:5676');
+
+        // Event handler for when the connection is opened
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket connection opened:', event);
+
+            // Send a test message to the server
+            socket.send('Hello, WebSocket Server!');
+        });
+
+        // Event handler for receiving messages from the server
+        socket.addEventListener('message', (event) => {
+            console.log('Message received from server:', event.data);
+
+            // Display the received message on the web page
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += '<p>' + event.data + '</p>';
+        });
+
+        // Event handler for when the connection is closed
+        socket.addEventListener('close', (event) => {
+            console.log('WebSocket connection closed:', event);
+        });
+
+        // Event handler for handling errors
+        socket.addEventListener('error', (event) => {
+            console.error('WebSocket error:', event);
+        });
+    </script>
+</body>
+</html>
