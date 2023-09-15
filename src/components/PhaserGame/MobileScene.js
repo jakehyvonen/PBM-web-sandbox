@@ -32,7 +32,8 @@ export default class MobileScene extends Phaser.Scene {
   }
 
   init() {
-    socket = openSocket(process.env.REACT_APP_NGROK_URL);   
+    socket = openSocket(process.env.REACT_APP_NGROK_URL); 
+    console.log('using URL: ', process.env.REACT_APP_NGROK_URL)  
     this.activeSyringeId = null;
     
 
@@ -389,7 +390,9 @@ export default class MobileScene extends Phaser.Scene {
       })
     };
     //#endregion
-  
+    
+    console.log('got here');
+    console.log('socket state is: ', socket.readyState)
     this.setCursorDebugInfo();
     this.updateJoystickState();
     this.broadcastInterval = setInterval(() => this.broadcastJoysticks(), 50);

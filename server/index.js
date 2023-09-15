@@ -36,7 +36,7 @@ io.on('connection',(socket)=>{
 
   socket.on('disconnect',(reason)=>{
     converter.User_Left(socket.id)
-    console.log(reason)
+    console.log('disconnected for reason: ' + reason)
   })
 
   socket.on('data', (data) => {

@@ -1,3 +1,4 @@
+
 import Phaser from 'phaser'
 
 export default class ToggleButton extends Phaser.GameObjects.Container {
@@ -27,28 +28,24 @@ export default class ToggleButton extends Phaser.GameObjects.Container {
 
         // Index of the current frame
         this.currentFrameIndex = 0;
-
-        this.on('pointerdown', function() {
+        this.image.on('pointerdown', () => {
             // If the button is not ready to be clicked, return
             if (!this.canClick) return;
-
+        
             // Set the button to not clickable
             this.canClick = false;
-
-            if(updateFrames){
-                
-            }
+        
             // Increment currentFrameIndex and use modulus to wrap around the frames array
             this.currentFrameIndex = (this.currentFrameIndex + 1) % this.frames.length;
-
+        
             // Update the image
-            this.setFrame(this.frames[this.currentFrameIndex]);
-
+            this.image.setFrame(this.frames[this.currentFrameIndex]);
+        
             // Call the provided callback function
             if (onClick) onClick(this.frames[this.currentFrameIndex]);
-
+        
             // Use Phaser's time events to re-enable the button after delay in ms
-            this.scene.time.delayedCall(delay, function() {
+            this.scene.time.delayedCall(delay, () => {
                 this.canClick = true;
             }, [], this);
         });
@@ -56,3 +53,5 @@ export default class ToggleButton extends Phaser.GameObjects.Container {
 
     }
 }
+
+

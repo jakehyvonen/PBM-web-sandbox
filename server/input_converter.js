@@ -100,6 +100,7 @@ const tcp_server = net.createServer((callback_socket) => {
       if (message.includes('syringe')){
         let parts = message.split(":"); // split the string by ':'
         let number = parseInt(parts[1].trim(), 10); // parse the second part to an integer
+        console.log('emitting syringe number: ', number)
         io.emit('syringe', number);
       }
   
