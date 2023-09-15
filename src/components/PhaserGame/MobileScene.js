@@ -1,3 +1,4 @@
+
 import Button from 'phaser3-rex-plugins/plugins/input/button/Button.js';
 import Phaser from 'phaser'
 import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js';
@@ -32,8 +33,7 @@ export default class MobileScene extends Phaser.Scene {
   }
 
   init() {
-    socket = openSocket(process.env.REACT_APP_NGROK_URL); 
-    console.log('using URL: ', process.env.REACT_APP_NGROK_URL)  
+    socket = openSocket(process.env.REACT_APP_NGROK_URL);   
     this.activeSyringeId = null;
     
 
@@ -59,19 +59,6 @@ export default class MobileScene extends Phaser.Scene {
       this.updateTaskButtonFrames();
       this.broadcastActiveSyringe();
     });
-    socket.on('error', (error) => {
-      console.error('WebSocket error:', error);
-      // You can add custom error handling here if needed
-    });
-      
-  socket.on('connect', () => {
-    console.log('Connected to WebSocket server');
-  });
-
-  socket.on('disconnect', (reason) => {
-    console.log('Disconnected from WebSocket server:', reason);
-  });
-
 
     this.isBusy = false;
     socket.on('finished', (data)=>{
@@ -136,14 +123,14 @@ export default class MobileScene extends Phaser.Scene {
 
     this.updateRotateButtonFrames = function(){
       if (this.isRotatingCW) {
-        rotateCWButton.setFrame(rotateCWButton.frames[1]);//right pushed
-        rotateCCWButton.setFrame(rotateCCWButton.frames[0]);//left up
+        rotateCWButton.image.setFrame(rotateCWButton.frames[1]);//right pushed
+        rotateCCWButton.image.setFrame(rotateCCWButton.frames[0]);//left up
       } else if (this.isRotatingCCW) {
-        rotateCWButton.setFrame(rotateCWButton.frames[0]);//right up
-        rotateCCWButton.setFrame(rotateCCWButton.frames[1]);//left pushed
+        rotateCWButton.image.setFrame(rotateCWButton.frames[0]);//right up
+        rotateCCWButton.image.setFrame(rotateCCWButton.frames[1]);//left pushed
       } else {
-        rotateCWButton.setFrame(rotateCWButton.frames[0]);//right up
-        rotateCCWButton.setFrame(rotateCCWButton.frames[0]);//left up
+        rotateCWButton.image.setFrame(rotateCWButton.frames[0]);//right up
+        rotateCCWButton.image.setFrame(rotateCCWButton.frames[0]);//left up
       }
     };
 
@@ -165,7 +152,7 @@ export default class MobileScene extends Phaser.Scene {
         }
         this.updateRotateButtonFrames();
       },
-      4, 'CW',
+      4, 'CCW',
     );
     this.add.existing(rotateCWButton);
     
@@ -187,7 +174,7 @@ export default class MobileScene extends Phaser.Scene {
         }
         this.updateRotateButtonFrames();
       },
-      4, 'Rotate CCW',
+      4, 'Rotate CW',
     );
     this.add.existing(rotateCCWButton);
 
@@ -222,7 +209,7 @@ export default class MobileScene extends Phaser.Scene {
           // Stop broadcasting orientation data
           clearInterval(this.orientationBroadcastInterval);
           this.orientationBroadcastInterval = null;
-          orientationButton.setFrame(orientationButton.frames[0]);//un-pushed image
+          orientationButton.image.setFrame(orientationButton.frames[0]);//un-pushed image
         }
         socket.emit('ERAS_action', ERAS_actions.Substrate_Neutral);
       },
@@ -390,9 +377,7 @@ export default class MobileScene extends Phaser.Scene {
       })
     };
     //#endregion
-    
-    console.log('got here');
-    console.log('socket state is: ', socket.readyState)
+  
     this.setCursorDebugInfo();
     this.updateJoystickState();
     this.broadcastInterval = setInterval(() => this.broadcastJoysticks(), 50);
