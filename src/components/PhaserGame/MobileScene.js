@@ -21,7 +21,7 @@ export default class MobileScene extends Phaser.Scene {
     this.orientationBroadcasting = false;
     this.orientationBroadcastInterval = null;
     this.handleDeviceOrientation = this.handleDeviceOrientation.bind(this);
-    this.isGantryView = false; //true if user is viewing camera mounted on gantry
+    this.isGantryView = true; //true if user is viewing camera mounted on gantry
   } 
 
   preload() {
@@ -41,8 +41,8 @@ export default class MobileScene extends Phaser.Scene {
     this.gameWidth = this.sys.game.config.height;    
 
     this.joystickAConfig = {
-      x: this.gameHeight/4,
-      y: this.gameWidth/6,
+      x: this.gameHeight/3,
+      y: this.gameWidth/4,
     }
     this.isDispensing = false;
     this.isRotatingCW = false;
@@ -390,8 +390,8 @@ export default class MobileScene extends Phaser.Scene {
         Object.assign({}, config, {
             enabled: true,
             radius: 100,
-            base: this.add.image(0, 0, 'base').setDisplaySize(200, 200),
-            thumb: this.add.image(0, 0, 'thumb').setDisplaySize(75, 75),
+            base: this.add.image(0, 0, 'base').setDisplaySize(350, 350),
+            thumb: this.add.image(0, 0, 'thumb').setDisplaySize(100, 100),
             normalizedX : 0.00,
             normalizedY : 0.00,
         })
@@ -431,7 +431,7 @@ export default class MobileScene extends Phaser.Scene {
       var msg = null;
       if (this.isGantryView){//reverse directions for gantry camera
         this.joystickA.normalizedX = this.joystickA.normalizedX * -1.0;
-        this.joystickA.normalizedY = this.joystickA.normalizedY * -1.0;
+        //this.joystickA.normalizedY = this.joystickA.normalizedY * -1.0;
       }
       //construct a msg if anything is nonzero
       //we only have one joystick for mobile
