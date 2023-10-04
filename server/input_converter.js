@@ -118,28 +118,49 @@ const tcp_server = net.createServer((callback_socket) => {
       console.error('callback_socket error:', error);
     });
   });
-  
+
+tcp_server.on('error', (err) => {
+    console.error('TCP server error:', err);
+});
+
+
 const tcp_listen_port = 5676; // Port number to listen on
 tcp_server.listen(tcp_listen_port, () => {
     console.log('TCP server listening on port', tcp_listen_port);
 });
 
-//send a message through a socket to the Python process
+let hasLoggedECONNREFUSED = false; // flag to indicate if we've already logged this error
+
 const send_tcp_msg = message => {
     return new Promise((resolve, reject) => {
-        let socket = net.connect(
-            {host: '127.0.0.1', port: 5623}, () => resolve (socket)
-            //{host: '192.168.1.12', port: '5623'}, () => resolve (socket)
-        )
-    }).then(socket => {
-        socket.on('data', (data) => {
-            //TODO: verify echoed data is identical to message
-            //console.log('>>>' + data.toString())
-            socket.end()
+        let socket = net.connect({host: '127.0.0.1', port: 5623});
+
+        socket.on('connect', () => {
+            hasLoggedECONNREFUSED = false; // Reset flag on successful connection
+            resolve(socket);
         });
+
+        socket.on('error', (err) => {
+            if (err.code === 'ECONNREFUSED') {
+                if (!hasLoggedECONNREFUSED) {
+                    console.error('TCP client error:', err.message);
+                    hasLoggedECONNREFUSED = true; // Set the flag to true so we don't log again
+                }
+            } else {
+                console.error('TCP client error:', err.message); // Log other errors as usual
+            }
+            reject(err);
+        });
+
+        socket.on('data', (data) => {
+            socket.end();
+        });
+    }).then(socket => {
         console.log('send_tcp_msg: ' + message);
         socket.write(message);
-    });  
+    }).catch(err => {
+        // Handle the error here if needed
+    });
 }
 
 function handle_joystick_data(joystick_data)

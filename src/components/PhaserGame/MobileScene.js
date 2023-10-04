@@ -21,7 +21,7 @@ export default class MobileScene extends Phaser.Scene {
     this.orientationBroadcasting = false;
     this.orientationBroadcastInterval = null;
     this.handleDeviceOrientation = this.handleDeviceOrientation.bind(this);
-    this.isGantryView = true; //true if user is viewing camera mounted on gantry
+    this.isGantryView = false; //true if user is viewing camera mounted on gantry
   } 
 
   preload() {
