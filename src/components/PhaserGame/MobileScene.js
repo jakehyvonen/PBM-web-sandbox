@@ -22,6 +22,7 @@ export default class MobileScene extends Phaser.Scene {
     this.orientationBroadcastInterval = null;
     this.handleDeviceOrientation = this.handleDeviceOrientation.bind(this);
     this.isGantryView = false; //true if user is viewing camera mounted on gantry
+    this.deviceOrientationSetup = false;
   } 
 
   preload() {
@@ -182,20 +183,22 @@ export default class MobileScene extends Phaser.Scene {
       this, this.gameHeight/2, this.gameWidth*5.5/6,
       'buttons', ['silver-T', 'silver-T-pushed'],
       (frameName) => {
-      console.log('orientationButton was toggled to frame', frameName);
-      if(this.orientationBroadcasting){
-        this.orientationBroadcasting = false;
-        // Stop broadcasting orientation data
-        clearInterval(this.orientationBroadcastInterval);
-        this.orientationBroadcastInterval = null;
-        }
-        else{
+        console.log('orientationButton was toggled to frame', frameName);
+        if (this.orientationBroadcasting) {
+          this.orientationBroadcasting = false;
+          clearInterval(this.orientationBroadcastInterval);
+          this.orientationBroadcastInterval = null;
+        } else {
           this.orientationBroadcasting = true;
           this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 50);
-
+          
+          // Set up deviceOrientation only once
+          if (!this.deviceOrientationSetup) {
+            this.setupDeviceOrientation();
+            this.deviceOrientationSetup = true; // Mark it as set up
+          }
         }
-      },
-      3, 'Tilt Table'
+      }, 3, 'Tilt Table'
     );
     this.add.existing(orientationButton);
 
@@ -383,6 +386,30 @@ export default class MobileScene extends Phaser.Scene {
     this.broadcastInterval = setInterval(() => this.broadcastJoysticks(), 50);
 
   }
+
+  setupDeviceOrientation = function() {
+    if (window.DeviceOrientationEvent) {
+      console.log('Device Orientation is supported');
+ 
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+          .then(permissionState => {
+            if (permissionState === 'granted') {
+              window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
+            } else {
+              console.log('Device orientation permission not granted');
+            }
+          })
+          .catch(console.error);
+      } else {
+        // non iOS 13+
+        window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
+      }
+    } else {
+      console.log('Device orientation is not supported');
+    }
+ };
+ 
 
   createVirtualJoystick(config) {
     let newJoyStick = this.plugins.get('rex-virtual-joystick-plugin"').add(
