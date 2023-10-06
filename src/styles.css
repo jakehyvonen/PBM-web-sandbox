@@ -66,3 +66,14 @@
   z-index: 11;
   position: absolute;
 }
+
+#stackPanel {
+  display: flex;
+  flex-direction: column; /* This will stack children vertically */
+  align-items: center;    /* This will center children horizontally */
+  justify-content: center;/* This will center children vertically */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+}

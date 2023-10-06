@@ -180,7 +180,7 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(rotateCCWButton);
 
     let orientationButton = new ToggleButton(
-      this, this.gameHeight/2, this.gameWidth*5.5/6,
+      this, this.gameHeight*1.5/2, this.gameWidth*2.5/6,
       'buttons', ['silver-T', 'silver-T-pushed'],
       (frameName) => {
         console.log('orientationButton was toggled to frame', frameName);
@@ -391,25 +391,71 @@ export default class MobileScene extends Phaser.Scene {
     if (window.DeviceOrientationEvent) {
       console.log('Device Orientation is supported');
  
-      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission()
-          .then(permissionState => {
-            if (permissionState === 'granted') {
-              window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
-            } else {
-              console.log('Device orientation permission not granted');
-            }
-          })
-          .catch(console.error);
-      } else {
-        // non iOS 13+
-        window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
-      }
+      DeviceOrientationEvent.requestPermission()
+      .then(permissionState => {
+        if (permissionState == 'granted') {
+          window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
+          console.log('Device orientation permission granted!!!!!s')
+        } else {
+          console.log('Device orientation permission not granted');
+        }
+      })
+      .catch(console.error);
+
+
+      // if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      //   DeviceOrientationEvent.requestPermission()
+      //     .then(permissionState => {
+      //       if (permissionState == 'granted') {
+      //         window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
+      //         console.log('Device orientation permission granted!!!!!s')
+      //       } else {
+      //         console.log('Device orientation permission not granted');
+      //       }
+      //     })
+      //     .catch(console.error);
+      // } else {
+      //   // non iOS 13+
+      //   window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
+      // }
     } else {
       console.log('Device orientation is not supported');
     }
  };
  
+
+ handleDeviceOrientation = (event) => {
+  //console.log('event.alpha: ', event.alpha);
+  const { alpha, beta, gamma } = event;
+  //alpha is phone rotation, beta and gamma are tilt axes
+  const roundedAlpha = parseFloat(alpha.toFixed(2));
+  const roundedBeta = parseFloat(beta.toFixed(2));
+  const roundedGamma = parseFloat(gamma.toFixed(2));
+  this.deviceOrientation = {
+    alpha: roundedAlpha,
+    beta: roundedBeta,
+    gamma: roundedGamma
+  };
+  console.log('handleDeviceOrientation: ', alpha, beta, gamma)
+};
+
+broadcastDeviceOrientation() {
+  if (this.orientationBroadcasting) {
+    console.log('broadcasting: ', this.deviceOrientation.alpha, this.deviceOrientation.beta, this.deviceOrientation.gamma)
+    if(!this.areObjectsEqual(this.deviceOrientation, this.lastDeviceOrientation)){
+      var data = this.deviceOrientation.alpha + '|';
+      data += this.deviceOrientation.beta + '|';
+      data += this.deviceOrientation.gamma;
+      socket.emit('device_orientation', data);
+      this.lastDeviceOrientation = this.deviceOrientation;
+    }
+    else{
+      console.log('no change in deviceOrientation');
+    }     
+  }
+}
+
+
 
   createVirtualJoystick(config) {
     let newJoyStick = this.plugins.get('rex-virtual-joystick-plugin"').add(
@@ -476,36 +522,6 @@ export default class MobileScene extends Phaser.Scene {
       this.didBroadcastJSNeutral = true;
     }
   }
-
-  handleDeviceOrientation = (event) => {
-    //console.log('event.alpha: ', event.alpha);
-    const { alpha, beta, gamma } = event;
-    //alpha is phone rotation, beta and gamma are tilt axes
-    const roundedAlpha = parseFloat(alpha.toFixed(2));
-    const roundedBeta = parseFloat(beta.toFixed(2));
-    const roundedGamma = parseFloat(gamma.toFixed(2));
-    this.deviceOrientation = {
-      alpha: roundedAlpha,
-      beta: roundedBeta,
-      gamma: roundedGamma
-    };
-  };
-
-  broadcastDeviceOrientation() {
-    if (this.orientationBroadcasting) {
-      if(!this.areObjectsEqual(this.deviceOrientation, this.lastDeviceOrientation)){
-        var data = this.deviceOrientation.alpha + '|';
-        data += this.deviceOrientation.beta + '|';
-        data += this.deviceOrientation.gamma;
-        socket.emit('device_orientation', data);
-        this.lastDeviceOrientation = this.deviceOrientation;
-      }
-      else{
-        console.log('no change in deviceOrientation');
-      }     
-    }
-  }
-
   broadcastActiveSyringe(){
     const data = { activeSyringeId: this.activeSyringeId };
     const event = new CustomEvent('ActiveSyringe', { detail: data });
