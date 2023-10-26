@@ -25,7 +25,11 @@ const App = () => {
                   }
               })
               .catch(console.error);
-      } else {
+      } 
+      else if(isNotAppleDevice()) {
+        setHasOrientationPermission(true); // Update state variable when permission is granted
+
+      }else {
           console.log("Device Orientation is not supported");
       }
   }
@@ -41,8 +45,8 @@ const App = () => {
           ) : (
 
           <div id="stackPanel">
-            <div>Some text above the button</div>
-            <button id="beginButton" onClick={requestDeviceOrientation}>Begin</button>
+            <div>Please lock screen rotation </div>
+            <button id="beginButton" onClick={requestDeviceOrientation}>Begin Painting</button>
           </div>
 
             )}
@@ -50,6 +54,16 @@ const App = () => {
   );
 }
 
+
+function isNotAppleDevice() {
+    const userAgent = navigator.userAgent;
+    if (/iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  
 
 export default App;
 

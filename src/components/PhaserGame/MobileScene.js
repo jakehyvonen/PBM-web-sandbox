@@ -401,23 +401,6 @@ export default class MobileScene extends Phaser.Scene {
         }
       })
       .catch(console.error);
-
-
-      // if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      //   DeviceOrientationEvent.requestPermission()
-      //     .then(permissionState => {
-      //       if (permissionState == 'granted') {
-      //         window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
-      //         console.log('Device orientation permission granted!!!!!s')
-      //       } else {
-      //         console.log('Device orientation permission not granted');
-      //       }
-      //     })
-      //     .catch(console.error);
-      // } else {
-      //   // non iOS 13+
-      //   window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
-      // }
     } else {
       console.log('Device orientation is not supported');
     }
