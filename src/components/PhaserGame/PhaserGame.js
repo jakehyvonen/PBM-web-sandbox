@@ -18,6 +18,12 @@ class PhaserGame extends Component {
         type: Phaser.AUTO,   
         transparent:true,
 
+        // scale: {
+        //     parent: "game",
+        //     mode: Phaser.Scale.NONE, // No scaling mode
+        //     width: window.innerWidth,
+        //     height: window.innerHeight,
+        // },
         scale: {
             parent: "game",
             width: 720,

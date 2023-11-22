@@ -97,11 +97,15 @@ const tcp_server = net.createServer((callback_socket) => {
         const updatedMessage = message.substring(9);
         io.emit('finished',updatedMessage);
       }
-      if (message.includes('syringe')){
+      if (message.includes('active_syringe')){
         let parts = message.split(":"); // split the string by ':'
         let number = parseInt(parts[1].trim(), 10); // parse the second part to an integer
         console.log('emitting syringe number: ', number)
-        io.emit('syringe', number);
+        io.emit('active_syringe', number);
+      }
+      if (message.includes('syringe_label')){
+        console.log('emitting syringe_label: ', message)
+        io.emit('syringe_label', message);
       }
   
       // Send a response back to the Python client

@@ -21,7 +21,7 @@ export default class MobileScene extends Phaser.Scene {
     this.orientationBroadcasting = false;
     this.orientationBroadcastInterval = null;
     this.handleDeviceOrientation = this.handleDeviceOrientation.bind(this);
-    this.isGantryView = false; //true if user is viewing camera mounted on gantry
+    this.isGantryView = true; //true if user is viewing camera mounted on gantry
     this.deviceOrientationSetup = false;
   } 
 
@@ -54,14 +54,13 @@ export default class MobileScene extends Phaser.Scene {
    
   create() {
     this.input.enabled = true;
-    socket.on('syringe', (data) => {
-      console.log('got syringe data: ' + data);
+    socket.on('active_syringe', (data) => {
+      console.log('got active_syringe data: ' + data);
       this.activeSyringeId = data;
       this.updateTaskButtonFrames();
       this.broadcastActiveSyringe();
     });
 
-    this.isBusy = false;
     socket.on('finished', (data)=>{
       console.log('we finnished');
       this.isBusy = false;
@@ -73,12 +72,50 @@ export default class MobileScene extends Phaser.Scene {
       // }
     });
 
+    socket.on('syringe_label', (data) => {
+      console.log('syringe_label message: ' + data);
+      let parts = data.split(',');
+      let number = parseInt(parts[1].trim(),10);
+      this.taskButtons[number].updateLabel(parts[2]);
+
+    });
+
+    this.isBusy = false;
+
+
+    const camera = this.cameras.main;
+
+    const originalAspectRatio = 720 / 1280; // The aspect ratio you designed the game in
+    const currentAspectRatio = window.innerWidth / window.innerHeight; // The device's aspect ratio
+    const zoom = originalAspectRatio / currentAspectRatio;
+
+    if (currentAspectRatio > originalAspectRatio) {
+      // The device has a wider aspect ratio than the game was designed for
+      camera.setZoom(zoom);
+      // Re-center the camera
+      camera.scrollX = (720 - 720 * zoom) / 2; // 720 is the original game width
+      camera.scrollY = (1280 - 1280 * zoom) / 2; // 1280 is the original game height
+      
+    
+    }
+
 
     this.cursorDebugTextA = this.add.text(100, 200);
     this.input.addPointer(1);
 
-    this.joystickA= this.createVirtualJoystick(this.joystickAConfig);
+    const fraction = 0.5;  // You can adjust this value to fine-tune the joystick position
+
+    const joystickX = (this.gameHeight / 3) - camera.scrollX * fraction;
+    const joystickY = (this.gameWidth / 4) - camera.scrollY * fraction;
+
+    this.testConfig = {
+      x: joystickX,
+      y: joystickY,
+    }
+
+    this.joystickA= this.createVirtualJoystick(this.testConfig);
     this.joysticks = [this.joystickA];
+   
 
     if (window.DeviceOrientationEvent) {
       console.log('Device Orientation is supported');
@@ -180,7 +217,7 @@ export default class MobileScene extends Phaser.Scene {
     this.add.existing(rotateCCWButton);
 
     let orientationButton = new ToggleButton(
-      this, this.gameHeight*1.5/2, this.gameWidth*2.5/6,
+      this, this.gameHeight/2, this.gameWidth*3.5/6,
       'buttons', ['silver-T', 'silver-T-pushed'],
       (frameName) => {
         console.log('orientationButton was toggled to frame', frameName);
@@ -192,11 +229,11 @@ export default class MobileScene extends Phaser.Scene {
           this.orientationBroadcasting = true;
           this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 50);
           
-          // Set up deviceOrientation only once
-          if (!this.deviceOrientationSetup) {
-            this.setupDeviceOrientation();
-            this.deviceOrientationSetup = true; // Mark it as set up
-          }
+          // // Set up deviceOrientation only once
+          // if (!this.deviceOrientationSetup) {
+          //   this.setupDeviceOrientation();
+          //   this.deviceOrientationSetup = true; // Mark it as set up
+          // }
         }
       }, 3, 'Tilt Table'
     );
@@ -247,37 +284,37 @@ export default class MobileScene extends Phaser.Scene {
     
     let taskButton0 = new TaskButton(
       this, this.gameHeight*5/6, this.gameWidth*1.9/3,
-      'buttons', ['blue-0','blue-0-pushed'], 0,
+      'buttons', ['blue-1','blue-1-pushed'], 0,
       (btnNum) => {
         this.swapSyringe(btnNum);
-      },
+      }, 3, 'Deep Blue'
     );
     this.add.existing(taskButton0);
 
     let taskButton1 = new TaskButton(
       this, this.gameHeight*5/6, this.gameWidth*2.2/3,
-      'buttons', ['blue-1','blue-1-pushed'], 1,
+      'buttons', ['blue-2','blue-2-pushed'], 1,
       (btnNum) => {
         this.swapSyringe(btnNum);
-      },
+      }, 3, 'Lite Blue'
     );
     this.add.existing(taskButton1);
 
     let taskButton2 = new TaskButton(
       this, this.gameHeight*5/6, this.gameWidth*2.5/3,
-      'buttons', ['blue-2','blue-2-pushed'], 2,
+      'buttons', ['blue-3','blue-3-pushed'], 2,
       (btnNum) => {
         this.swapSyringe(btnNum);
-      },
+      }, 3, 'Orchid'
     );
     this.add.existing(taskButton2);
 
     let taskButton3 = new TaskButton(
       this, this.gameHeight*5/6, this.gameWidth*2.8/3,
-      'buttons', ['blue-3','blue-3-pushed'], 3,
+      'buttons', ['blue-4','blue-4-pushed'], 3,
       (btnNum) => {
         this.swapSyringe(btnNum);
-      },
+      }, 3, 'Purple'
     );
     this.add.existing(taskButton3);
 
@@ -311,19 +348,21 @@ export default class MobileScene extends Phaser.Scene {
       })
     };
 
-    let replayGestureButton = new ToggleButton(
-      this, this.gameHeight*5/6, this.gameWidth/6,
-      'buttons', ['green-!triangle', 'green-triangle-pushed'],
-      (frameName) => {
-        window.dispatchEvent(new CustomEvent('showGestureDialog'));
-        console.log('we may be sane');
 
-        // socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
-        // this.setAllSwappersInactive();
-      }
-      ,3, 'Replay',
-    );
-    this.add.existing(replayGestureButton)
+
+    // let replayGestureButton = new ToggleButton(
+    //   this, this.gameHeight*5/6, this.gameWidth/6,
+    //   'buttons', ['green-!triangle', 'green-triangle-pushed'],
+    //   (frameName) => {
+    //     window.dispatchEvent(new CustomEvent('showGestureDialog'));
+    //     console.log('we may be sane');
+
+    //     // socket.emit('ERAS_action', ERAS_actions.Replay_Last_Gesture)
+    //     // this.setAllSwappersInactive();
+    //   }
+    //   ,3, 'Replay',
+    // );
+    // this.add.existing(replayGestureButton)
 
     window.addEventListener('showGestureDialog', () => {
       this.scene.pause();

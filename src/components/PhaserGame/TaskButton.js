@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 class TaskButton extends Phaser.GameObjects.Container {
     constructor(scene, x, y, atlas, frameNames, btnNum, onClick, 
-        scale = 3, angle=90, command,) {
+        scale = 3, labelText = '', angle=90, command,) {
         super(scene, x, y);
 
         // The sprite for our button
@@ -20,6 +20,12 @@ class TaskButton extends Phaser.GameObjects.Container {
         // Add sprite to container
         this.add(this.sprite);
 
+        // Add text label underneath the button
+        const labelOffsetY = this.sprite.height * scale * 0.5 + 5;
+        this.label = new Phaser.GameObjects.Text(scene, 0, labelOffsetY, labelText, { font: '37px Arial', fill: '#000' });
+        this.label.setOrigin(0.5, 0);
+        this.add(this.label);
+
         // Start off as inactive
         this.active = true;
 
@@ -27,7 +33,7 @@ class TaskButton extends Phaser.GameObjects.Container {
         this.sprite.setInteractive({ useHandCursor: true });
         this.sprite.on('pointerdown', () => {
             if (this.active) {
-                this.sprite.setFrame(this.frameNames[1]);//pushed
+                this.sprite.setFrame(this.frameNames[1]);
                 if (onClick) onClick(this.btnNum);
             }
         });
@@ -36,6 +42,10 @@ class TaskButton extends Phaser.GameObjects.Container {
         this.setSize(this.sprite.width, this.sprite.height);
     }
 
+    updateLabel(newText) {
+        console.log('updatingLabel: ' + this.btnNum + ' ' + newText)
+        this.label.setText(newText);
+    }
 }
 
 export default TaskButton;
