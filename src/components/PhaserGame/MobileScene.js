@@ -229,11 +229,6 @@ export default class MobileScene extends Phaser.Scene {
           this.orientationBroadcasting = true;
           this.orientationBroadcastInterval = setInterval(this.broadcastDeviceOrientation.bind(this), 50);
           
-          // // Set up deviceOrientation only once
-          // if (!this.deviceOrientationSetup) {
-          //   this.setupDeviceOrientation();
-          //   this.deviceOrientationSetup = true; // Mark it as set up
-          // }
         }
       }, 3, 'Tilt Table'
     );
@@ -500,6 +495,7 @@ broadcastDeviceOrientation() {
     this.joysticks.forEach(function(joystick){
       var newX = joystick.forceX;
       var newY = joystick.forceY;
+      var sensitivity = 1.7;
       
       if (joystick.force > joystick.radius) { // Exceed radius
         const angle = Math.floor(joystick.angle * 100) / 100;
@@ -508,11 +504,14 @@ broadcastDeviceOrientation() {
         newX = Math.cos(rad) * joystick.radius;
         newY = Math.sin(rad) * joystick.radius;
       }
-      joystick.normalizedX = newX/joystick.radius;//radius = max force
-      joystick.normalizedY = newY/joystick.radius;
-     
-      joystick.normalizedX = (joystick.normalizedX).toPrecision(3);
-      joystick.normalizedY = (joystick.normalizedY).toPrecision(3);
+      newX = newX/joystick.radius;//radius = max force
+      newY = newY/joystick.radius;
+      // modulate the intensity so it's not too responsive
+      newX = Math.sign(newX) * Math.pow(Math.abs(newX), sensitivity);
+      newY = Math.sign(newY) * Math.pow(Math.abs(newY), sensitivity);
+
+      joystick.normalizedX = (newX).toPrecision(3);
+      joystick.normalizedY = (newY).toPrecision(3);
       // console.log('normalizedX: ' + joystick.normalizedX);
       // console.log('normalizedY: ' + joystick.normalizedY);
     });
