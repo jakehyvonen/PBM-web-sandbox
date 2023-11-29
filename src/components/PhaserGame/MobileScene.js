@@ -10,6 +10,11 @@ import TaskButton from './TaskButton';
 const PBM_enums = require('../../enums.json');
 const ERAS_actions = PBM_enums.ERAS_Action;
 
+const syringe0color = 'Blue';
+const syringe1color = 'Red';
+const syringe2color = 'White';
+const syringe3color = 'Purple';
+
 var socket = null;
 
 export default class MobileScene extends Phaser.Scene {
@@ -282,7 +287,7 @@ export default class MobileScene extends Phaser.Scene {
       'buttons', ['blue-1','blue-1-pushed'], 0,
       (btnNum) => {
         this.swapSyringe(btnNum);
-      }, 3, 'Deep Blue'
+      }, 3, syringe0color
     );
     this.add.existing(taskButton0);
 
@@ -291,7 +296,7 @@ export default class MobileScene extends Phaser.Scene {
       'buttons', ['blue-2','blue-2-pushed'], 1,
       (btnNum) => {
         this.swapSyringe(btnNum);
-      }, 3, 'Lite Blue'
+      }, 3, syringe1color
     );
     this.add.existing(taskButton1);
 
@@ -300,7 +305,7 @@ export default class MobileScene extends Phaser.Scene {
       'buttons', ['blue-3','blue-3-pushed'], 2,
       (btnNum) => {
         this.swapSyringe(btnNum);
-      }, 3, 'Orchid'
+      }, 3, syringe2color
     );
     this.add.existing(taskButton2);
 
@@ -309,7 +314,7 @@ export default class MobileScene extends Phaser.Scene {
       'buttons', ['blue-4','blue-4-pushed'], 3,
       (btnNum) => {
         this.swapSyringe(btnNum);
-      }, 3, 'Purple'
+      }, 3, syringe3color
     );
     this.add.existing(taskButton3);
 
